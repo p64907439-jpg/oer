@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SubjectCard } from "@/components/subject-card";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Subject } from "@/lib/types";
 import Link from "next/link";
@@ -48,6 +49,7 @@ export default async function TeacherPage({
 
   return (
     <>
+      <RealtimeRefresh teacherId={id} />
       <SiteHeader />
 
       <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">

@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { KindIcon } from "@/components/icons";
+import { KindIcon, LiveDot } from "@/components/icons";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import { KIND_LABELS, formatBytes, formatDate } from "@/lib/files";
 import type { FileRow, Profile, Subject } from "@/lib/types";
@@ -68,6 +69,7 @@ export default async function DashboardPage() {
 
   return (
     <>
+      <RealtimeRefresh teacherId={user.id} />
       <SiteHeader />
 
       <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">
@@ -82,12 +84,21 @@ export default async function DashboardPage() {
               {totalSize > 0 ? ` · ${formatBytes(totalSize)} total` : ""}
             </p>
           </div>
-          <Link
-            href={`/teachers/${user.id}`}
-            className="btn btn-outline text-sm"
-          >
-            View public profile
-          </Link>
+          <div className="flex items-center gap-3">
+            <span
+              className="badge"
+              title="Changes from other sessions appear automatically"
+            >
+              <LiveDot />
+              Live
+            </span>
+            <Link
+              href={`/teachers/${user.id}`}
+              className="btn btn-outline text-sm"
+            >
+              View public profile
+            </Link>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[320px_1fr]">

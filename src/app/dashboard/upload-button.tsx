@@ -7,6 +7,13 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { UploadIcon } from "@/components/icons";
 
+type UploadState = {
+  label: string;
+  /** 1-based index of the file currently uploading */
+  current: number;
+  total: number;
+};
+
 export function UploadButton({
   subjectId,
   teacherId,
@@ -15,19 +22,24 @@ export function UploadButton({
   teacherId: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [state, setState] = useState<UploadState | null>(null);
   const router = useRouter();
+
+  const uploading = state !== null;
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
 
     const supabase = createClient();
-    setUploading(true);
-
+    const files = Array.from(fileList);
     let ok = 0;
     let failed = 0;
 
-    for (const file of Array.from(fileList)) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      setState({ label: file.name, current: i + 1, total: files.length });
+
       if (isTooLarge(file.size)) {
         toast.error(`"${file.name}" is over the 50 MB limit`);
         failed++;
@@ -66,16 +78,14 @@ export function UploadButton({
     }
 
     if (ok > 0) {
-      toast.success(
-        `Uploaded ${ok} file${ok === 1 ? "" : "s"}`,
-      );
+      toast.success(`Uploaded ${ok} file${ok === 1 ? "" : "s"}`);
       router.refresh();
     }
     if (failed > 0 && ok === 0) {
       toast.error("Upload failed");
     }
 
-    setUploading(false);
+    setState(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -90,14 +100,47 @@ export function UploadButton({
         onChange={(e) => handleFiles(e.target.files)}
         disabled={uploading}
       />
-      <button
-        className="btn btn-outline text-xs"
-        onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-      >
-        <UploadIcon width={14} height={14} />
-        {uploading ? "Uploading…" : "Upload files"}
-      </button>
+
+      {uploading ? (
+        /* Upload state: which file, how many left, and batch progress.
+           Determinate beats a spinner for perceived speed. */
+        <div
+          className="w-48"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={state.total}
+          aria-valuenow={state.current - 1}
+          aria-label={`Uploading ${state.label}`}
+        >
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="truncate pr-2 font-medium text-neutral-700">
+              {state.total > 1 && (
+                <span className="text-neutral-400">
+                  {state.current}/{state.total}{" "}
+                </span>
+              )}
+              {state.label}
+            </span>
+          </div>
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
+            <div
+              className="h-full rounded-full bg-neutral-900"
+              style={{
+                width: `${(state.current / state.total) * 100}%`,
+                transition: "width 250ms var(--ease-out)",
+              }}
+            />
+          </div>
+        </div>
+      ) : (
+        <button
+          className="btn btn-outline text-xs"
+          onClick={() => inputRef.current?.click()}
+        >
+          <UploadIcon width={14} height={14} />
+          Upload files
+        </button>
+      )}
     </>
   );
 }

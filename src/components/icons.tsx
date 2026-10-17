@@ -92,6 +92,35 @@ export function GoogleIcon(props: Props) {
   );
 }
 
+export function AlertIcon(props: Props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="8" y2="12" />
+      <line x1="12" x2="12.01" y1="16" y2="16" />
+    </svg>
+  );
+}
+
+export function NotFoundIcon(props: Props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" x2="16.65" y1="21" y2="16.65" />
+      <line x1="8" x2="14" y1="8" y2="14" />
+      <line x1="14" x2="8" y1="8" y2="14" />
+    </svg>
+  );
+}
+
+export function LiveDot(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width={8} height={8} viewBox="0 0 8 8" aria-hidden {...props}>
+      <circle cx="4" cy="4" r="4" fill="currentColor" className="animate-pulse" />
+    </svg>
+  );
+}
+
 const KIND_MAP = {
   video: VideoIcon,
   pdf: PdfIcon,

@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { FileItem } from "@/components/file-item";
 import { FolderIcon } from "@/components/icons";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import { formatBytes } from "@/lib/files";
 import type { FileRow, Profile } from "@/lib/types";
@@ -38,6 +39,7 @@ export default async function SubjectPage({
 
   return (
     <>
+      <RealtimeRefresh subjectId={id} />
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-4 pb-20 sm:px-6">

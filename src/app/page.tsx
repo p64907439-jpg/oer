@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SubjectCard } from "@/components/subject-card";
 import { FolderIcon } from "@/components/icons";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import type { SubjectWithTeacher } from "@/lib/types";
 
@@ -50,6 +51,7 @@ export default async function HomePage({
 
   return (
     <>
+      <RealtimeRefresh />
       <SiteHeader />
 
       <main className="mx-auto max-w-5xl px-4 sm:px-6">
