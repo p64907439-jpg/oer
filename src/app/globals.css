@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Strong easings — built-in curves are too weak (emil-design-eng) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-neutral-50 text-neutral-900 antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============ Components ============ */
+
+.btn {
+  @apply inline-flex select-none items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium outline-none;
+  transition:
+    transform 150ms var(--ease-out),
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn:focus-visible {
+  @apply ring-2 ring-neutral-900/20 ring-offset-2 ring-offset-neutral-50;
+}
+.btn:disabled {
+  @apply pointer-events-none opacity-50;
+}
+
+.btn-primary {
+  @apply bg-neutral-900 text-white shadow-sm hover:bg-neutral-800;
+}
+.btn-outline {
+  @apply border border-neutral-300 bg-white text-neutral-800 shadow-sm hover:border-neutral-400 hover:bg-neutral-50;
+}
+.btn-ghost {
+  @apply text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900;
+}
+.btn-danger-ghost {
+  @apply text-neutral-500 hover:bg-red-50 hover:text-red-600;
+}
+.btn-lg {
+  @apply px-5 py-2.5 text-base;
+}
+
+.input {
+  @apply w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 shadow-sm outline-none placeholder:text-neutral-400;
+  transition:
+    box-shadow 150ms var(--ease-out),
+    border-color 150ms ease;
+}
+.input:focus {
+  @apply border-neutral-400 ring-2 ring-neutral-900/10;
+}
+
+.label {
+  @apply mb-1.5 block text-sm font-medium text-neutral-700;
+}
+
+.card {
+  @apply rounded-xl border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)];
+  transition:
+    transform 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 8px 24px -8px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600;
+}
+
+/* ============ Motion ============ */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise-in 400ms var(--ease-out) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade {
+  animation: fade-in 300ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-fade {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
