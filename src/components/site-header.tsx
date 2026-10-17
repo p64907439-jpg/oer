@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { InstallButton } from "./install-button";
 import { SignOutButton } from "./sign-out-button";
 
 export async function SiteHeader() {
@@ -25,6 +26,7 @@ export async function SiteHeader() {
           <Link href="/" className="btn btn-ghost">
             Browse
           </Link>
+          <InstallButton />
           {user ? (
             <>
               <Link href="/dashboard" className="btn btn-outline">
