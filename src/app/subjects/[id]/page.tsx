@@ -3,6 +3,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { FileItem } from "@/components/file-item";
 import { FolderIcon } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
+import { ShareButton } from "@/components/share-dialog";
 import { createClient } from "@/lib/supabase/server";
 import { formatBytes } from "@/lib/files";
 import type { FileRow, Profile } from "@/lib/types";
@@ -69,6 +70,19 @@ export default async function SubjectPage({
               {fileRows.length} {fileRows.length === 1 ? "file" : "files"}
               {totalSize > 0 ? ` · ${formatBytes(totalSize)}` : ""}
             </span>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <ShareButton
+              url={`/subjects/${id}`}
+              title={subject.title}
+              className="btn btn-primary text-sm"
+            />
+            {teacher && (
+              <span className="text-xs text-neutral-400">
+                Scan the QR code to share with students
+              </span>
+            )}
           </div>
 
           {teacher && (

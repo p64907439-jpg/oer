@@ -12,6 +12,7 @@ import { DeleteFileButton } from "./delete-file-button";
 import { DeleteSubjectButton } from "./delete-subject-button";
 import { ProfileForm } from "./profile-form";
 import { UploadButton } from "./upload-button";
+import { ShareButton } from "@/components/share-dialog";
 
 export const instant = false;
 
@@ -146,6 +147,10 @@ export default async function DashboardPage() {
                         )}
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
+                        <ShareButton
+                          url={`/subjects/${subject.id}`}
+                          title={subject.title}
+                        />
                         <Link
                           href={`/subjects/${subject.id}`}
                           className="btn btn-ghost text-xs"
