@@ -123,7 +123,7 @@ export default async function SubjectPage({
             <ul className="flex flex-col gap-2.5">
               {fileRows.map((file) => (
                 <li key={file.id}>
-                  <FileItem file={file} />
+                  <FileItem file={file} subjectTitle={subject.title} />
                 </li>
               ))}
             </ul>

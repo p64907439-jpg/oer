@@ -32,7 +32,7 @@ export function InstallButton() {
 
   return (
     <button
-      className="btn btn-ghost"
+      className="btn btn-ghost hidden sm:inline-flex"
       onClick={async () => {
         await prompt.prompt();
         const { outcome } = await prompt.userChoice;

@@ -16,6 +16,8 @@ A web app where teachers share learning materials and students browse them — n
 - Browse all subjects and teacher profiles
 - Search by subject, description, or teacher name
 - View files in the browser and download them
+- **Downloads tab** — download a file and its subject folder is saved to your downloads, with ✓ marks on saved files and "Not downloaded" marks on the rest (stored locally per device, no account)
+- Installable PWA, works offline and is comfortable on small screens
 
 ## Stack
 

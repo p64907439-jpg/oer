@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto flex min-h-[60vh] max-w-5xl flex-col items-center justify-center px-4 sm:px-6">
+      <main className="mx-auto flex min-h-[60dvh] max-w-5xl flex-col items-center justify-center px-4 sm:px-6">
         <div className="card w-full max-w-md animate-rise p-8 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
             <NotFoundIcon />

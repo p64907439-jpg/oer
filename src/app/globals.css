@@ -57,6 +57,14 @@ body {
     @apply px-5 py-2.5 text-base;
   }
 
+  /* Comfortable touch targets on phones. Lives in the components layer
+     so utilities (e.g. min-h-0 on a 32px icon button) can still override. */
+  @media (pointer: coarse) {
+    .btn {
+      min-height: 42px;
+    }
+  }
+
   .input {
     @apply w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 shadow-sm outline-none placeholder:text-neutral-400;
     transition:
@@ -93,6 +101,37 @@ body {
   .skeleton {
     @apply animate-pulse rounded-md bg-neutral-200/70;
   }
+}
+
+/* ============ Mobile baseline (mobile-native) ============ */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Controls: instant taps, no gray flash, no long-press text selection */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS zooms into inputs below 16px — hold form fields at 16px on touch */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Sticky header clears the notch / dynamic island */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
 }
 
 /* ============ Share dialog (native <dialog>) ============ */

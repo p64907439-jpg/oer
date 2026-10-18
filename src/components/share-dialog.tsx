@@ -112,7 +112,7 @@ export function ShareButton({
           <button
             type="button"
             onClick={close}
-            className="btn btn-ghost absolute right-2 top-2 h-8 w-8 !p-0 text-neutral-400"
+            className="btn btn-ghost absolute right-2 top-2 h-8 w-8 min-h-0 !p-0 text-neutral-400"
             aria-label="Close share dialog"
           >
             <CloseIcon width={16} height={16} />

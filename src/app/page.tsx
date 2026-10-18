@@ -85,6 +85,7 @@ export default async function HomePage({
               placeholder="Search subjects or teachers…"
               className="input"
               aria-label="Search subjects"
+              enterKeyHint="search"
             />
             <button type="submit" className="btn btn-primary shrink-0">
               Search

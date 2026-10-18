@@ -34,10 +34,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fafafa",
+  // The app is light-only — the status bar should match the page top
+  // (not the OS theme) in both schemes.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#fafafa" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Keep the page above the on-screen keyboard on Android.
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 
 import { signOut } from "@/app/login/actions";
+import { LogOutIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -9,7 +10,8 @@ export function SignOutButton() {
 
   return (
     <button
-      className="btn btn-ghost"
+      className="btn btn-ghost max-sm:px-2.5"
+      title="Sign out"
       onClick={async () => {
         await signOut();
         toast.success("Signed out");
@@ -17,7 +19,8 @@ export function SignOutButton() {
         router.refresh();
       }}
     >
-      Sign out
+      <LogOutIcon width={14} height={14} className="sm:hidden" />
+      <span className="max-sm:hidden">Sign out</span>
     </button>
   );
 }

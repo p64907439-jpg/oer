@@ -18,7 +18,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="bg-neutral-50 text-neutral-900 antialiased">
-        <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 sm:px-6">
+        <main className="mx-auto flex min-h-dvh max-w-5xl flex-col items-center justify-center px-4 sm:px-6">
           <div className="card w-full max-w-md animate-rise p-8 text-center">
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-500">
               <AlertIcon />
