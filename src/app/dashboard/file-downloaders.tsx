@@ -2,6 +2,7 @@
 
 import { formatDate } from "@/lib/files";
 import { createClient } from "@/lib/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
 type Downloader = {
@@ -51,6 +52,48 @@ function Avatar({
 }
 
 /**
+ * file_downloads.user_id points at auth.users, not profiles — PostgREST
+ * can't embed profiles here, so fetch rows first, then profiles by id.
+ * Returns null on error (caller keeps its previous state).
+ */
+async function fetchList(
+  supabase: SupabaseClient,
+  fileId: string
+): Promise<Downloader[] | null> {
+  const { data: rows, error } = await supabase
+    .from("file_downloads")
+    .select("user_id, downloaded_at")
+    .eq("file_id", fileId)
+    .order("downloaded_at", { ascending: false })
+    .limit(50);
+  if (error || !rows) return null;
+  if (rows.length === 0) return [];
+
+  const { data: profileRows } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url")
+    .in("id", (rows as { user_id: string }[]).map((r) => r.user_id));
+
+  const byId = new Map<string, ProfileBrief>(
+    ((profileRows ?? []) as ProfileBrief[]).map((p) => [p.id, p])
+  );
+
+  return (rows as { user_id: string; downloaded_at: string }[]).map((row) => {
+    const profile = byId.get(row.user_id);
+    return {
+      user_id: row.user_id,
+      downloaded_at: row.downloaded_at,
+      profiles: profile
+        ? {
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+          }
+        : null,
+    };
+  });
+}
+
+/**
  * Who downloaded this file — visible only to the file's uploader (enforced
  * by RLS). Shows a count chip; clicking expands the list of downloaders.
  * Guests aren't recorded, so only signed-in downloads appear.
@@ -59,56 +102,28 @@ export function FileDownloaders({ fileId }: { fileId: string }) {
   const [list, setList] = useState<Downloader[] | null>(null);
   const [open, setOpen] = useState(false);
 
+  const refresh = async () => {
+    const rows = await fetchList(createClient(), fileId);
+    if (rows) setList(rows);
+  };
+
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
+    const run = () => {
+      fetchList(supabase, fileId).then((rows) => {
+        if (!cancelled && rows) setList(rows);
+      });
+    };
 
-    // file_downloads.user_id points at auth.users, not profiles — no
-    // PostgREST embed possible, so fetch rows then profiles separately.
-    async function load() {
-      const { data: rows, error } = await supabase
-        .from("file_downloads")
-        .select("user_id, downloaded_at")
-        .eq("file_id", fileId)
-        .order("downloaded_at", { ascending: false })
-        .limit(50);
-      if (cancelled || error || !rows) return;
-      if (rows.length === 0) {
-        setList([]);
-        return;
-      }
-
-      const { data: profileRows } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", (rows as { user_id: string }[]).map((r) => r.user_id));
-      if (cancelled) return;
-
-      const byId = new Map<string, ProfileBrief>(
-        ((profileRows ?? []) as ProfileBrief[]).map((p) => [p.id, p])
-      );
-
-      setList(
-        (rows as { user_id: string; downloaded_at: string }[]).map((row) => {
-          const profile = byId.get(row.user_id);
-          return {
-            user_id: row.user_id,
-            downloaded_at: row.downloaded_at,
-            profiles: profile
-              ? {
-                  full_name: profile.full_name,
-                  avatar_url: profile.avatar_url,
-                }
-              : null,
-          };
-        })
-      );
-    }
-
-    load();
+    run();
+    // The owner often downloads in another tab, then returns here —
+    // refetch whenever the dashboard regains focus so counts are fresh.
+    window.addEventListener("focus", run);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", run);
     };
   }, [fileId]);
 
@@ -125,7 +140,12 @@ export function FileDownloaders({ fileId }: { fileId: string }) {
     <>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          const willOpen = !open;
+          setOpen(willOpen);
+          // Refresh on every expand so a just-finished download shows up.
+          if (willOpen) void refresh();
+        }}
         aria-expanded={open}
         title="Who downloaded this file"
         className={`btn text-xs ${open ? "btn-outline" : "btn-ghost"}`}

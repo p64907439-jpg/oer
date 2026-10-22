@@ -61,8 +61,9 @@ export function FileItem({
         },
         { onConflict: "file_id,user_id" }
       );
-    } catch {
+    } catch (err) {
       // tracking is best-effort — the download itself still proceeds
+      console.error("Failed to record download", err);
     }
   }
 
