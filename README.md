@@ -4,20 +4,19 @@ A web app where teachers share learning materials and students browse them — n
 
 ## Features
 
-**Teachers** (sign in with Google)
+**Accounts** (one type — Google sign-in only)
 
-- Create an account → get a public profile
-- Create subject folders (e.g. "Algebra II")
-- Upload videos, PDFs, and images into each subject
-- Manage everything from a personal dashboard
+- Sign in with Google → get a profile and a personal dashboard
+- Create subject folders (e.g. "Algebra II") and upload videos, PDFs, and images
+- Your profile icon appears **beside the Share button** in every folder you
+  open — and anyone signed in can expand it to see the full list of who
+  viewed the folder
 
-**Students** (Google sign-in optional)
+**Guests** (no account needed)
 
-- Browse all subjects and teacher profiles with **no account** (guest)
-- Search by subject, description, or teacher name; view files in the browser and download them
-- Optionally create a student account — when signed in, their profile icon
-  appears in every folder they open, so teachers and other students see who
-  viewed it (guests are never tracked and can't see the viewer list)
+- Browse, search, view and download everything
+- Never tracked — nothing is recorded for guests, and the viewer list stays
+  hidden from them
 - **Downloads tab** — download a file and its subject folder is saved to your downloads, with ✓ marks on saved files and "Not downloaded" marks on the rest (stored locally per device, no account)
 - Installable PWA, works offline and is comfortable on small screens
 
@@ -35,6 +34,7 @@ A web app where teachers share learning materials and students browse them — n
 | `profiles` | Teacher profiles — auto-created on Google signup via DB trigger |
 | `subjects` | Subject folders owned by a teacher |
 | `files` | Metadata for uploaded materials (name, size, kind, storage path) |
+| `subject_views` | Who viewed each folder — signed-in users only (invisible to guests via RLS) |
 
 All tables have RLS: everyone can **read**; only the owning teacher can **write**. Files live in the public `oer-files` storage bucket under `{teacherId}/{subjectId}/…`, writable only by the owner.
 

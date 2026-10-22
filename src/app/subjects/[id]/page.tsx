@@ -79,6 +79,8 @@ export default async function SubjectPage({
               title={subject.title}
               className="btn btn-primary text-sm"
             />
+            {/* Signed-in viewers only — guests see nothing here */}
+            <SubjectViewers subjectId={id} />
             {teacher && (
               <span className="text-xs text-neutral-400">
                 Scan the QR code to share with students
@@ -117,8 +119,6 @@ export default async function SubjectPage({
             </Link>
           )}
 
-          {/* Signed-in viewers only — guests see nothing here */}
-          <SubjectViewers subjectId={id} />
         </header>
 
         {/* Files */}

@@ -39,16 +39,51 @@ async function fetchViewers(
   }));
 }
 
+function Avatar({
+  name,
+  url,
+  size = 20,
+}: {
+  name: string;
+  url: string | null;
+  size?: number;
+}) {
+  const px = { width: size, height: size };
+  if (url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt=""
+        title={name}
+        style={px}
+        className="rounded-full bg-white ring-2 ring-white"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+  return (
+    <span
+      title={name}
+      style={px}
+      className="flex items-center justify-center rounded-full bg-neutral-200 text-[10px] font-semibold text-neutral-600 ring-2 ring-white"
+    >
+      {name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
+
 /**
- * "Who viewed this folder" — signed-in viewers are recorded and their
- * profile icons shown in the folder. Guests see nothing (RLS blocks the
- * list for anon, and nothing is recorded for them).
+ * "Who viewed this folder" — sits beside the Share button. Signed-in
+ * viewers are recorded and their icons shown; clicking expands the full
+ * list of names. Guests see nothing (RLS blocks the list for anon, and
+ * nothing is recorded for them).
  */
 export function SubjectViewers({ subjectId }: { subjectId: string }) {
   const [enabled, setEnabled] = useState(false);
   const [meId, setMeId] = useState<string | null>(null);
   const [viewers, setViewers] = useState<Viewer[]>([]);
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -106,50 +141,50 @@ export function SubjectViewers({ subjectId }: { subjectId: string }) {
 
   if (!enabled || viewers.length === 0) return null;
 
-  const MAX_AVATARS = 8;
-  const shown = expanded ? viewers : viewers.slice(0, MAX_AVATARS);
-  const extra = viewers.length - shown.length;
-  const iAmHere = meId !== null && viewers.some((v) => v.user_id === meId);
-
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-neutral-100 pt-4">
-      <div className="flex -space-x-1.5">
-        {shown.map((v) => {
-          const name = v.profiles?.full_name ?? "Someone";
-          return v.profiles?.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        title="Who viewed this folder"
+        className={`btn text-xs ${open ? "btn-outline" : "btn-ghost"}`}
+      >
+        <span className="flex -space-x-1.5">
+          {viewers.slice(0, 5).map((v) => (
+            <Avatar
               key={v.user_id}
-              src={v.profiles.avatar_url}
-              alt={name}
-              title={name}
-              className="h-6 w-6 rounded-full bg-white ring-2 ring-white"
-              referrerPolicy="no-referrer"
+              name={v.profiles?.full_name ?? "Someone"}
+              url={v.profiles?.avatar_url ?? null}
             />
-          ) : (
-            <span
-              key={v.user_id}
-              title={name}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-semibold text-neutral-600 ring-2 ring-white"
-            >
-              {name.charAt(0).toUpperCase()}
-            </span>
-          );
-        })}
-      </div>
-      <p className="text-xs text-neutral-500">
-        {viewers.length === 1 ? "1 person has" : `${viewers.length} people have`}{" "}
-        viewed this folder{iAmHere ? " — including you" : ""}.
-      </p>
-      {extra > 0 && (
-        <button
-          type="button"
-          className="btn btn-ghost text-xs"
-          onClick={() => setExpanded(true)}
-        >
-          +{extra} more
-        </button>
+          ))}
+        </span>
+        Viewed by {viewers.length}
+      </button>
+
+      {open && (
+        <ul className="mt-1 w-full animate-rise rounded-lg border border-neutral-200/70 bg-neutral-50 p-2">
+          {viewers.map((v) => {
+            const name = v.profiles?.full_name ?? "Someone";
+            return (
+              <li
+                key={v.user_id}
+                className="flex items-center gap-2.5 rounded-md px-2 py-1.5"
+              >
+                <Avatar
+                  name={name}
+                  url={v.profiles?.avatar_url ?? null}
+                  size={24}
+                />
+                <span className="min-w-0 flex-1 truncate text-sm text-neutral-800">
+                  {name}
+                </span>
+                {v.user_id === meId && <span className="badge">You</span>}
+              </li>
+            );
+          })}
+        </ul>
       )}
-    </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
-import { SignInForm } from "./sign-in-form";
+import { signInWithGoogle } from "./actions";
+import { GoogleIcon } from "@/components/icons";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -24,16 +25,27 @@ export default async function LoginPage({
               Sign in to OER
             </h1>
             <p className="mt-1.5 text-sm leading-relaxed text-neutral-600">
-              Teachers get a dashboard to upload materials. Students get a
-              profile that shows up in the folders they open.
+              One Google account gives you a profile — create folders, upload
+              materials, and your icon shows up in the folders you view.
             </p>
           </div>
 
-          <SignInForm next={next} error={error} />
+          {error && (
+            <p className="mt-5 rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-600">
+              Sign-in failed ({error}). Please try again.
+            </p>
+          )}
+
+          <form action={signInWithGoogle.bind(null, next)} className="mt-6">
+            <button type="submit" className="btn btn-primary btn-lg w-full">
+              <GoogleIcon />
+              Continue with Google
+            </button>
+          </form>
 
           <p className="mt-5 text-center text-xs leading-relaxed text-neutral-500">
-            No account? No problem — every subject is open to browse as a
-            guest.
+            Just here to look around? No account needed — everything is open
+            to browse as a guest.
           </p>
         </div>
       </main>
