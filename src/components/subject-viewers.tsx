@@ -10,33 +10,52 @@ type Viewer = {
   profiles: { full_name: string | null; avatar_url: string | null } | null;
 };
 
-/** PostgREST types the embedded to-one join as an array — normalize it. */
-type RawViewer = Omit<Viewer, "profiles"> & {
-  profiles:
-    | { full_name: string | null; avatar_url: string | null }[]
-    | { full_name: string | null; avatar_url: string | null }
-    | null;
+type ProfileBrief = {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
 };
 
+/**
+ * subject_views.user_id points at auth.users, not profiles — PostgREST
+ * can't embed profiles here, so fetch rows first, then profiles by id.
+ */
 async function fetchViewers(
   supabase: SupabaseClient,
   subjectId: string
 ): Promise<Viewer[] | null> {
-  const { data, error } = await supabase
+  const { data: rows, error } = await supabase
     .from("subject_views")
-    .select("user_id, viewed_at, profiles(full_name, avatar_url)")
+    .select("user_id, viewed_at")
     .eq("subject_id", subjectId)
     .order("viewed_at", { ascending: false })
     .limit(30);
 
-  if (error || !data) return null;
+  if (error || !rows) return null;
+  if (rows.length === 0) return [];
 
-  return (data as unknown as RawViewer[]).map((row) => ({
-    ...row,
-    profiles: Array.isArray(row.profiles)
-      ? (row.profiles[0] ?? null)
-      : row.profiles,
-  }));
+  const { data: profileRows } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url")
+    .in("id", (rows as { user_id: string }[]).map((r) => r.user_id));
+
+  const byId = new Map<string, ProfileBrief>(
+    ((profileRows ?? []) as ProfileBrief[]).map((p) => [p.id, p])
+  );
+
+  return (rows as { user_id: string; viewed_at: string }[]).map((row) => {
+    const profile = byId.get(row.user_id);
+    return {
+      user_id: row.user_id,
+      viewed_at: row.viewed_at,
+      profiles: profile
+        ? {
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+          }
+        : null,
+    };
+  });
 }
 
 function Avatar({

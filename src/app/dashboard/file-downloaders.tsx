@@ -10,22 +10,11 @@ type Downloader = {
   profiles: { full_name: string | null; avatar_url: string | null } | null;
 };
 
-/** PostgREST types the embedded to-one join as an array — normalize it. */
-type RawDownloader = Omit<Downloader, "profiles"> & {
-  profiles:
-    | { full_name: string | null; avatar_url: string | null }[]
-    | { full_name: string | null; avatar_url: string | null }
-    | null;
+type ProfileBrief = {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
 };
-
-function normalize(rows: RawDownloader[]): Downloader[] {
-  return rows.map((row) => ({
-    ...row,
-    profiles: Array.isArray(row.profiles)
-      ? (row.profiles[0] ?? null)
-      : row.profiles,
-  }));
-}
 
 function Avatar({
   name,
@@ -74,16 +63,49 @@ export function FileDownloaders({ fileId }: { fileId: string }) {
     let cancelled = false;
     const supabase = createClient();
 
-    supabase
-      .from("file_downloads")
-      .select("user_id, downloaded_at, profiles(full_name, avatar_url)")
-      .eq("file_id", fileId)
-      .order("downloaded_at", { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
-        if (cancelled || !data) return;
-        setList(normalize(data as unknown as RawDownloader[]));
-      });
+    // file_downloads.user_id points at auth.users, not profiles — no
+    // PostgREST embed possible, so fetch rows then profiles separately.
+    async function load() {
+      const { data: rows, error } = await supabase
+        .from("file_downloads")
+        .select("user_id, downloaded_at")
+        .eq("file_id", fileId)
+        .order("downloaded_at", { ascending: false })
+        .limit(50);
+      if (cancelled || error || !rows) return;
+      if (rows.length === 0) {
+        setList([]);
+        return;
+      }
+
+      const { data: profileRows } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", (rows as { user_id: string }[]).map((r) => r.user_id));
+      if (cancelled) return;
+
+      const byId = new Map<string, ProfileBrief>(
+        ((profileRows ?? []) as ProfileBrief[]).map((p) => [p.id, p])
+      );
+
+      setList(
+        (rows as { user_id: string; downloaded_at: string }[]).map((row) => {
+          const profile = byId.get(row.user_id);
+          return {
+            user_id: row.user_id,
+            downloaded_at: row.downloaded_at,
+            profiles: profile
+              ? {
+                  full_name: profile.full_name,
+                  avatar_url: profile.avatar_url,
+                }
+              : null,
+          };
+        })
+      );
+    }
+
+    load();
 
     return () => {
       cancelled = true;
