@@ -11,6 +11,9 @@ A web app where teachers share learning materials and students browse them — n
 - Your profile icon appears **beside the Share button** in every folder you
   open — and anyone signed in can expand it to see the full list of who
   viewed the folder
+- See **who downloaded your files** — every file in your dashboard shows its
+  download count, expanding into the downloaders' names (signed-in downloads
+  only; guests are never recorded)
 
 **Guests** (no account needed)
 

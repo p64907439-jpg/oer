@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { CreateSubjectForm } from "./create-subject-form";
 import { DeleteFileButton } from "./delete-file-button";
 import { DeleteSubjectButton } from "./delete-subject-button";
+import { FileDownloaders } from "./file-downloaders";
 import { ProfileForm } from "./profile-form";
 import { UploadButton } from "./upload-button";
 import { ShareButton } from "@/components/share-dialog";
@@ -177,7 +178,7 @@ export default async function DashboardPage() {
                           {subjectFiles.map((file) => (
                             <li
                               key={file.id}
-                              className="flex items-center gap-3 py-2"
+                              className="flex flex-wrap items-center gap-3 py-2"
                             >
                               <span className="text-neutral-400">
                                 <KindIcon kind={file.kind as never} width={16} height={16} />
@@ -192,6 +193,7 @@ export default async function DashboardPage() {
                                   {formatDate(file.created_at)}
                                 </span>
                               </span>
+                              <FileDownloaders fileId={file.id} />
                               <DeleteFileButton
                                 fileId={file.id}
                                 storagePath={file.storage_path}

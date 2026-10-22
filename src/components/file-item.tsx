@@ -3,6 +3,7 @@
 import type { FileRow } from "@/lib/types";
 import { KIND_LABELS, formatBytes, formatDate } from "@/lib/files";
 import { markFileDownloaded, useDownloads } from "@/lib/downloads";
+import { createClient } from "@/lib/supabase/client";
 import { CheckIcon, DownloadIcon, KindIcon } from "./icons";
 import { toast } from "sonner";
 
@@ -40,6 +41,28 @@ export function FileItem({
         }
       );
       toast.success(`“${file.name}” saved to Downloads`, { duration: 2500 });
+    }
+    // Credit signed-in downloaders to the file's owner (guests stay anonymous).
+    void recordDownload();
+  }
+
+  async function recordDownload() {
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("file_downloads").upsert(
+        {
+          file_id: file.id,
+          user_id: user.id,
+          downloaded_at: new Date().toISOString(),
+        },
+        { onConflict: "file_id,user_id" }
+      );
+    } catch {
+      // tracking is best-effort — the download itself still proceeds
     }
   }
 
