@@ -39,6 +39,7 @@ export default async function DashboardPage() {
       avatar_url: user.user_metadata?.avatar_url ?? null,
       headline: null,
       bio: null,
+      role: "teacher",
       created_at: new Date().toISOString(),
     } satisfies Profile);
 

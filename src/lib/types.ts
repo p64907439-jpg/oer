@@ -1,11 +1,14 @@
 export type { Database } from "./supabase/types";
 
+export type AccountRole = "teacher" | "student";
+
 export type Profile = {
   id: string;
   full_name: string;
   avatar_url: string | null;
   headline: string | null;
   bio: string | null;
+  role: AccountRole;
   created_at: string;
 };
 

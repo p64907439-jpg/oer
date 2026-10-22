@@ -47,7 +47,7 @@ export async function SiteHeader() {
             </>
           ) : (
             <Link href="/login" className="btn btn-primary max-sm:px-3">
-              <span className="max-sm:hidden">Teacher </span>Sign in
+              Sign in
             </Link>
           )}
         </nav>

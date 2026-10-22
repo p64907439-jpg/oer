@@ -4,6 +4,7 @@ import { FileItem } from "@/components/file-item";
 import { FolderIcon } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { ShareButton } from "@/components/share-dialog";
+import { SubjectViewers } from "@/components/subject-viewers";
 import { createClient } from "@/lib/supabase/server";
 import { formatBytes } from "@/lib/files";
 import type { FileRow, Profile } from "@/lib/types";
@@ -115,6 +116,9 @@ export default async function SubjectPage({
               </span>
             </Link>
           )}
+
+          {/* Signed-in viewers only — guests see nothing here */}
+          <SubjectViewers subjectId={id} />
         </header>
 
         {/* Files */}

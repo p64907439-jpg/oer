@@ -4,18 +4,20 @@ A web app where teachers share learning materials and students browse them — n
 
 ## Features
 
-**Teachers** (sign in with Google only)
+**Teachers** (sign in with Google)
 
 - Create an account → get a public profile
 - Create subject folders (e.g. "Algebra II")
 - Upload videos, PDFs, and images into each subject
 - Manage everything from a personal dashboard
 
-**Students** (no account needed)
+**Students** (Google sign-in optional)
 
-- Browse all subjects and teacher profiles
-- Search by subject, description, or teacher name
-- View files in the browser and download them
+- Browse all subjects and teacher profiles with **no account** (guest)
+- Search by subject, description, or teacher name; view files in the browser and download them
+- Optionally create a student account — when signed in, their profile icon
+  appears in every folder they open, so teachers and other students see who
+  viewed it (guests are never tracked and can't see the viewer list)
 - **Downloads tab** — download a file and its subject folder is saved to your downloads, with ✓ marks on saved files and "Not downloaded" marks on the rest (stored locally per device, no account)
 - Installable PWA, works offline and is comfortable on small screens
 
