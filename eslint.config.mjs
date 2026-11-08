@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Downloaded agent skills are third-party reference material,
+    // not app code — never lint them.
+    ".agents/**",
   ]),
 ]);
 
