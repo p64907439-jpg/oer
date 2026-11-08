@@ -31,8 +31,14 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect the teacher dashboard. Students never need an account.
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
+  // Signed-in-only areas: dashboard, inbox, classrooms. Guests keep
+  // public browse (home, subjects) without an account.
+  const needsAuth =
+    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname.startsWith("/inbox") ||
+    request.nextUrl.pathname.startsWith("/classrooms");
+
+  if (needsAuth && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);

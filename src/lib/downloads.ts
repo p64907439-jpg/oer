@@ -9,6 +9,8 @@ export type DownloadedFile = {
   kind: FileKind;
   size_bytes: number | null;
   storage_path: string;
+  /** Storage bucket — optional so pre-classroom records stay valid. */
+  bucket?: string;
   downloaded_at: number;
 };
 
@@ -77,6 +79,7 @@ export function markFileDownloaded(
     kind: FileKind;
     size_bytes: number | null;
     storage_path: string;
+    bucket?: string;
   }
 ) {
   const state = { ...load() };

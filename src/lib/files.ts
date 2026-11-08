@@ -2,6 +2,20 @@ export type FileKind = "video" | "pdf" | "image" | "other";
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB — Supabase free-tier per-file limit
 
+/** Direct URL for a storage object. Public bucket only — classroom files
+ *  live in a private bucket and need signed URLs instead. */
+export function publicObjectUrl(bucket: string, path: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return `${base}/storage/v1/object/public/${bucket}/${path}`;
+}
+
+/** Force a download with the original filename. Cross-origin `download`
+ *  attributes are ignored by browsers — the query param is what makes
+ *  storage serve Content-Disposition: attachment. Works on signed URLs too. */
+export function withDownloadParam(url: string, name: string): string {
+  return `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(name)}`;
+}
+
 export function kindFromMime(mime: string | null | undefined): FileKind {
   if (!mime) return "other";
   if (mime.startsWith("video/")) return "video";

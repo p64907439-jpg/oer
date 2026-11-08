@@ -8,9 +8,11 @@ import { toast } from "sonner";
 export function DeleteFileButton({
   fileId,
   storagePath,
+  bucket = "oer-files",
 }: {
   fileId: string;
   storagePath: string;
+  bucket?: string;
 }) {
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -27,7 +29,9 @@ export function DeleteFileButton({
     if (error) {
       toast.error(`Could not delete: ${error.message}`);
     } else {
-      await supabase.storage.from("oer-files").remove([storagePath]);
+      // Storage policy only allows removing objects under your own uid
+      // folder — best effort, the row is already gone either way.
+      await supabase.storage.from(bucket).remove([storagePath]);
       toast.success("File deleted");
       router.refresh();
     }

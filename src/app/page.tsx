@@ -5,6 +5,7 @@ import { FolderIcon } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import type { SubjectWithTeacher } from "@/lib/types";
+import { MyClassrooms } from "./my-classrooms";
 
 // Prerendering would block on live Supabase data — render per-request.
 export const instant = false;
@@ -22,6 +23,7 @@ export default async function HomePage({
   const { data: subjects } = await supabase
     .from("subjects")
     .select("*, profiles:teacher_id(id, full_name, avatar_url)")
+    .is("classroom_id", null)
     .order("created_at", { ascending: false })
     .limit(60);
 
@@ -92,6 +94,9 @@ export default async function HomePage({
             </button>
           </form>
         </section>
+
+        {/* Signed-in users: their classrooms (classrooms stay private) */}
+        <MyClassrooms />
 
         {/* Subject grid */}
         <section className="pb-20">

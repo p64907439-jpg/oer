@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { DownloadsLink } from "./downloads-link";
 import { GridIcon } from "./icons";
+import { InboxLink } from "./inbox-link";
 import { InstallButton } from "./install-button";
 import { SignOutButton } from "./sign-out-button";
 
@@ -35,6 +36,7 @@ export async function SiteHeader() {
           <InstallButton />
           {user ? (
             <>
+              <InboxLink userId={user.id} />
               <Link
                 href="/dashboard"
                 className="btn btn-outline max-sm:px-2.5"

@@ -19,14 +19,24 @@ export function DeleteSubjectButton({ subjectId }: { subjectId: string }) {
     const supabase = createClient();
 
     // Storage objects live under {teacherId}/{subjectId}/ — remove them too.
+    // Group by bucket: public subjects use oer-files, classroom folders
+    // use oer-class-files. Objects uploaded by other teachers live under
+    // their uid folders (RLS denies removing those) — harmless orphans.
     const { data: files } = await supabase
       .from("files")
-      .select("storage_path")
+      .select("storage_path, bucket")
       .eq("subject_id", subjectId);
 
-    const paths = (files ?? []).map((f) => f.storage_path);
-    if (paths.length > 0) {
-      await supabase.storage.from("oer-files").remove(paths);
+    const byBucket = new Map<string, string[]>();
+    for (const f of files ?? []) {
+      const list = byBucket.get(f.bucket) ?? [];
+      list.push(f.storage_path);
+      byBucket.set(f.bucket, list);
+    }
+    for (const [bucket, paths] of byBucket) {
+      if (paths.length > 0) {
+        await supabase.storage.from(bucket).remove(paths);
+      }
     }
 
     // DB rows cascade from subjects → files.
@@ -38,7 +48,7 @@ export function DeleteSubjectButton({ subjectId }: { subjectId: string }) {
     if (error) {
       toast.error(`Could not delete subject: ${error.message}`);
     } else {
-      toast.success("Subject deleted");
+      toast.success("Folder deleted");
       router.refresh();
     }
     setDeleting(false);

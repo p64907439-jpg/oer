@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { kindFromMime, isTooLarge, safeFileName } from "@/lib/files";
+import type { FileBucket } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -17,9 +18,13 @@ type UploadState = {
 export function UploadButton({
   subjectId,
   teacherId,
+  bucket = "oer-files",
 }: {
   subjectId: string;
+  /** Must be the signed-in uploader: RLS keys both the row and the
+   *  storage folder ({teacherId}/...) on auth.uid(). */
   teacherId: string;
+  bucket?: FileBucket;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<UploadState | null>(null);
@@ -49,7 +54,7 @@ export function UploadButton({
       const path = `${teacherId}/${subjectId}/${Date.now()}-${safeFileName(file.name)}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("oer-files")
+        .from(bucket)
         .upload(path, file, { contentType: file.type, upsert: false });
 
       if (uploadError) {
@@ -63,6 +68,7 @@ export function UploadButton({
         teacher_id: teacherId,
         name: file.name,
         storage_path: path,
+        bucket,
         mime_type: file.type || null,
         size_bytes: file.size,
         kind: kindFromMime(file.type),

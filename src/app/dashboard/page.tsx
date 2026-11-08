@@ -43,24 +43,70 @@ export default async function DashboardPage() {
       created_at: new Date().toISOString(),
     } satisfies Profile);
 
-  const [{ data: subjects }, { data: files }] = await Promise.all([
-    supabase
-      .from("subjects")
-      .select("*")
-      .eq("teacher_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("files")
-      .select("*")
-      .eq("teacher_id", user.id)
-      .order("created_at", { ascending: false }),
-  ]);
+  // Public subjects only — classroom folders live in their own section.
+  const { data: subjects } = await supabase
+    .from("subjects")
+    .select("*")
+    .eq("teacher_id", user.id)
+    .is("classroom_id", null)
+    .order("created_at", { ascending: false });
+
+  // Classroom folders I own or that are assigned to me.
+  const { data: memberRows } = await supabase
+    .from("classroom_members")
+    .select("classroom_id, role, classroom:classrooms(name)")
+    .eq("user_id", user.id);
+
+  const memberships = (memberRows ?? []) as unknown as {
+    classroom_id: string;
+    role: string;
+    classroom: { name: string } | null;
+  }[];
+  const classIds = memberships.map((m) => m.classroom_id);
+
+  const { data: classFolderRows } =
+    classIds.length > 0
+      ? await supabase
+          .from("subjects")
+          .select("*, classroom:classrooms(id, name)")
+          .in("classroom_id", classIds)
+          .or(`assigned_teacher_id.eq.${user.id},teacher_id.eq.${user.id}`)
+          .order("created_at", { ascending: false })
+      : { data: [] };
+
+  // My uploads (stats + public lists) plus every file in my class folders
+  // (other teachers' uploads belong to the owner for awareness).
+  const { data: myFiles } = await supabase
+    .from("files")
+    .select("*")
+    .eq("teacher_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const { data: classFiles } =
+    classFolderRows && classFolderRows.length > 0
+      ? await supabase
+          .from("files")
+          .select("*")
+          .in(
+            "subject_id",
+            classFolderRows.map((s) => s.id)
+          )
+          .order("created_at", { ascending: false })
+      : { data: [] };
 
   const subjectRows = (subjects ?? []) as Subject[];
-  const fileRows = (files ?? []) as FileRow[];
+  const classFolders = (classFolderRows ?? []) as (Subject & {
+    classroom: { id: string; name: string } | null;
+  })[];
+  const fileRows = (myFiles ?? []) as FileRow[];
 
+  // Dedupe by file id, then group by subject.
+  const fileById = new Map<string, FileRow>();
+  for (const f of [...fileRows, ...((classFiles ?? []) as FileRow[])]) {
+    fileById.set(f.id, f);
+  }
   const filesBySubject = new Map<string, FileRow[]>();
-  for (const f of fileRows) {
+  for (const f of fileById.values()) {
     const arr = filesBySubject.get(f.subject_id) ?? [];
     arr.push(f);
     filesBySubject.set(f.subject_id, arr);
@@ -210,6 +256,113 @@ export default async function DashboardPage() {
                   </section>
                 );
               })
+            )}
+
+            {/* Classroom folders — owned or assigned to me (RLS-gated) */}
+            {classFolders.length > 0 && (
+              <section className="flex flex-col gap-4 pt-2">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-sm font-medium text-neutral-500">
+                    Classroom folders · {classFolders.length}
+                  </h2>
+                  <span className="h-px flex-1 bg-neutral-200" />
+                </div>
+
+                {classFolders.map((folder, i) => {
+                  const folderFiles = filesBySubject.get(folder.id) ?? [];
+                  const isOwner = folder.teacher_id === user.id;
+                  return (
+                    <section
+                      key={folder.id}
+                      className="card animate-rise p-5"
+                      style={{ animationDelay: `${Math.min(i, 6) * 45}ms` }}
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="font-semibold tracking-tight">
+                              {folder.title}
+                            </h2>
+                            <span className="badge bg-neutral-900 text-white">
+                              {folder.classroom?.name ?? "Classroom"}
+                            </span>
+                            <span className="badge">
+                              {folderFiles.length}{" "}
+                              {folderFiles.length === 1 ? "file" : "files"}
+                            </span>
+                          </div>
+                          {folder.description && (
+                            <p className="mt-1 text-sm text-neutral-600">
+                              {folder.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Link
+                            href={`/subjects/${folder.id}`}
+                            className="btn btn-ghost text-xs"
+                          >
+                            View page
+                          </Link>
+                          {isOwner && (
+                            <DeleteSubjectButton subjectId={folder.id} />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 border-t border-neutral-100 pt-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-xs font-medium text-neutral-500">
+                            Materials
+                          </p>
+                          <UploadButton
+                            subjectId={folder.id}
+                            teacherId={user.id}
+                            bucket="oer-class-files"
+                          />
+                        </div>
+
+                        {folderFiles.length > 0 ? (
+                          <ul className="mt-3 flex flex-col divide-y divide-neutral-100">
+                            {folderFiles.map((file) => (
+                              <li
+                                key={file.id}
+                                className="flex flex-wrap items-center gap-3 py-2"
+                              >
+                                <span className="text-neutral-400">
+                                  <KindIcon kind={file.kind as never} width={16} height={16} />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-sm text-neutral-800">
+                                    {file.name}
+                                  </span>
+                                  <span className="block text-xs text-neutral-500">
+                                    {KIND_LABELS[file.kind as keyof typeof KIND_LABELS] ?? "File"} ·{" "}
+                                    {formatBytes(file.size_bytes)} ·{" "}
+                                    {formatDate(file.created_at)}
+                                  </span>
+                                </span>
+                                <FileDownloaders fileId={file.id} />
+                                {file.teacher_id === user.id && (
+                                  <DeleteFileButton
+                                    fileId={file.id}
+                                    storagePath={file.storage_path}
+                                    bucket={file.bucket}
+                                  />
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="mt-3 text-sm text-neutral-500">
+                            No files yet — upload videos, PDFs, or images.
+                          </p>
+                        )}
+                      </div>
+                    </section>
+                  );
+                })}
+              </section>
             )}
           </div>
         </div>

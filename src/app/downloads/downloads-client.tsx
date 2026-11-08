@@ -23,6 +23,7 @@ function storedFileToFileRow(subjectId: string, f: DownloadedFile): FileRow {
     teacher_id: "",
     name: f.name,
     storage_path: f.storage_path,
+    bucket: (f.bucket as FileRow["bucket"]) ?? "oer-files",
     mime_type: null,
     size_bytes: f.size_bytes,
     kind: f.kind,
