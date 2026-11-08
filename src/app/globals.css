@@ -129,6 +129,15 @@ a,
   }
 }
 
+/* Press feedback for touch: card-hover's lift is hover-gated, so coarse
+   pointers get an instant press instead (mobile-native §5 — 120ms ease-out) */
+@media (pointer: coarse) {
+  .card-hover:active {
+    transform: scale(0.98);
+    transition-duration: 120ms;
+  }
+}
+
 /* Sticky header clears the notch / dynamic island */
 .safe-top {
   padding-top: env(safe-area-inset-top);
@@ -140,7 +149,11 @@ a,
   width: fit-content;
   max-width: calc(100vw - 2rem);
   max-height: calc(100dvh - 2rem);
-  overflow: visible;
+  /* Content can exceed the box in landscape — scroll inside the dialog
+     instead of spilling off-screen, and don't chain that scroll to the
+     page behind it (mobile-native §6). */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 0;
   padding: 0;
   background: transparent;

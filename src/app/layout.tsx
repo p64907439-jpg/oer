@@ -58,7 +58,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {children}
-        <Toaster position="bottom-right" richColors closeButton />
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          // On phones the toast must clear the home indicator (mobile-native §7).
+          mobileOffset={{
+            bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+          }}
+        />
         <ServiceWorkerRegister />
       </body>
     </html>
