@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ClampedDescription } from "@/components/clamped-description";
 import { KindIcon, LiveDot } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
@@ -188,9 +189,12 @@ export default async function DashboardPage() {
                           </span>
                         </div>
                         {subject.description && (
-                          <p className="mt-1 text-sm text-neutral-600">
-                            {subject.description}
-                          </p>
+                          <div className="mt-1">
+                            <ClampedDescription
+                              text={subject.description}
+                              lines={2}
+                            />
+                          </div>
                         )}
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
@@ -292,9 +296,12 @@ export default async function DashboardPage() {
                             </span>
                           </div>
                           {folder.description && (
-                            <p className="mt-1 text-sm text-neutral-600">
-                              {folder.description}
-                            </p>
+                            <div className="mt-1">
+                              <ClampedDescription
+                                text={folder.description}
+                                lines={2}
+                              />
+                            </div>
                           )}
                         </div>
                         <div className="flex shrink-0 items-center gap-1">

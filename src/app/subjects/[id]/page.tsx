@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ClampedDescription } from "@/components/clamped-description";
 import { DownloadAllButton } from "@/components/download-all-button";
 import { FileItem } from "@/components/file-item";
 import { FolderIcon } from "@/components/icons";
@@ -12,6 +13,8 @@ import type { ClassroomRole, FileRow } from "@/lib/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UploadButton } from "@/app/dashboard/upload-button";
+import { DeleteFileButton } from "@/app/dashboard/delete-file-button";
+import { DeleteSubjectButton } from "@/app/dashboard/delete-subject-button";
 
 export const instant = false;
 
@@ -82,6 +85,11 @@ export default async function SubjectPage({
     : role === "owner" ||
       (!!user && subject.assigned_teacher_id === user.id);
 
+  // Deleting a folder is owner-only inside a classroom (RLS matches).
+  const canDeleteFolder = classroom
+    ? role === "owner"
+    : !!user && subject.teacher_id === user.id;
+
   return (
     <>
       <RealtimeRefresh subjectId={subject.id} />
@@ -149,9 +157,9 @@ export default async function SubjectPage({
           </div>
 
           {subject.description && (
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600">
-              {subject.description}
-            </p>
+            <div className="mt-4">
+              <ClampedDescription text={subject.description} lines={3} />
+            </div>
           )}
 
           <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-4">
@@ -172,6 +180,13 @@ export default async function SubjectPage({
               url={`/subjects/${subject.id}`}
               title={subject.title}
             />
+            {canDeleteFolder && (
+              <DeleteSubjectButton
+                subjectId={subject.id}
+                label={classroom ? "Delete folder" : "Delete subject"}
+                redirect={classroom ? `/classrooms/${classroom.id}` : "/dashboard"}
+              />
+            )}
           </div>
         </header>
 
@@ -182,6 +197,15 @@ export default async function SubjectPage({
                 key={file.id}
                 file={file}
                 subjectTitle={subject.title}
+                actions={
+                  user && file.teacher_id === user.id ? (
+                    <DeleteFileButton
+                      fileId={file.id}
+                      storagePath={file.storage_path}
+                      bucket={file.bucket}
+                    />
+                  ) : undefined
+                }
               />
             ))}
           </div>

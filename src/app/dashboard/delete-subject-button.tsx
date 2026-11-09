@@ -5,7 +5,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function DeleteSubjectButton({ subjectId }: { subjectId: string }) {
+export function DeleteSubjectButton({
+  subjectId,
+  label = "Delete subject",
+  redirect: redirectAfter,
+}: {
+  subjectId: string;
+  /** Button copy — "Delete subject" on the dashboard, "Delete folder" inside a classroom. */
+  label?: string;
+  /** Where to go after a successful delete (the page you're on may 404 next). */
+  redirect?: string;
+}) {
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
@@ -49,6 +59,7 @@ export function DeleteSubjectButton({ subjectId }: { subjectId: string }) {
       toast.error(`Could not delete subject: ${error.message}`);
     } else {
       toast.success("Folder deleted");
+      if (redirectAfter) router.push(redirectAfter);
       router.refresh();
     }
     setDeleting(false);
@@ -60,7 +71,7 @@ export function DeleteSubjectButton({ subjectId }: { subjectId: string }) {
       onClick={handleDelete}
       disabled={deleting}
     >
-      {deleting ? "Deleting…" : "Delete subject"}
+      {deleting ? "Deleting…" : label}
     </button>
   );
 }

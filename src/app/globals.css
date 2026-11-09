@@ -143,6 +143,15 @@ a,
   padding-top: env(safe-area-inset-top);
 }
 
+/* Phones: the fixed bottom tab bar overlays the viewport — lift the whole
+   document above it (content + footer stay reachable, matched to sm:hidden
+   on BottomNav). */
+@media (max-width: 639px) {
+  body {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* ============ Share dialog (native <dialog>) ============ */
 
 .share-dialog {

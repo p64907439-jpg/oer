@@ -41,13 +41,17 @@ export function InboxList({
 
     if (error) {
       toast.error(`Could not respond: ${error.message}`);
+      router.refresh();
     } else if (action === "accept") {
+      // Flow: accepting takes you straight into the classroom
+      // (navigation re-renders the server components on arrival).
       toast.success(`You joined ${item.classroomName}`);
+      router.push(`/classrooms/${item.classroomId}`);
     } else {
       toast.success("Invitation declined");
+      router.refresh();
     }
     setBusyId(null);
-    router.refresh();
   }
 
   async function dismiss(item: InboxItem) {

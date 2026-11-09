@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ClampedDescription } from "@/components/clamped-description";
 import { FolderIcon, SettingsIcon } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
@@ -143,12 +144,18 @@ export default async function ClassroomPage({
             {list.map((folder, i) => {
               const stat = stats.get(folder.id) ?? { count: 0, size: 0 };
               return (
-                <Link
+                <div
                   key={folder.id}
-                  href={`/subjects/${folder.id}`}
-                  className="card card-hover animate-rise block p-5"
+                  className="card card-hover animate-rise relative p-5"
                   style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
                 >
+                  <Link
+                    href={`/subjects/${folder.id}`}
+                    className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/20 focus-visible:ring-offset-2"
+                  >
+                    <span className="sr-only">{folder.title}</span>
+                  </Link>
+
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-semibold leading-snug tracking-tight text-neutral-900">
                       {folder.title}
@@ -159,9 +166,12 @@ export default async function ClassroomPage({
                   </div>
 
                   {folder.description && (
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-600">
-                      {folder.description}
-                    </p>
+                    <div className="mt-2">
+                      <ClampedDescription
+                        text={folder.description}
+                        lines={2}
+                      />
+                    </div>
                   )}
 
                   <div className="mt-4 flex items-center justify-between gap-2 text-xs text-neutral-500">
@@ -175,7 +185,7 @@ export default async function ClassroomPage({
                       {stat.count === 0 ? "No files yet" : "materials"}
                     </span>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>

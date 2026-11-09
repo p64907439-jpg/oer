@@ -62,9 +62,10 @@ export default function RootLayout({
           position="bottom-right"
           richColors
           closeButton
-          // On phones the toast must clear the home indicator (mobile-native §7).
+          // Phones: clear the bottom tab bar AND the home indicator
+          // (mobile-native §7). Desktop keeps the default 16px offset.
           mobileOffset={{
-            bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+            bottom: "calc(72px + env(safe-area-inset-bottom, 0px))",
           }}
         />
         <ServiceWorkerRegister />

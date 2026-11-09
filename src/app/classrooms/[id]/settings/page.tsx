@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { DeleteClassroomButton } from "./delete-classroom-button";
 import { MembersManager } from "./members-manager";
 import { RenameForm } from "./rename-form";
 
@@ -136,6 +137,20 @@ export default async function ClassSettingsPage({
             members={members.filter((m) => m.role === "student")}
             invites={invites.filter((i) => i.role === "student")}
           />
+
+          {/* Danger zone — owner-only classroom deletion */}
+          <section className="card border-red-200/70 p-4">
+            <h2 className="text-sm font-medium text-red-600">Danger zone</h2>
+            <p className="mt-1 mb-3 text-xs text-neutral-500">
+              Deleting the classroom removes its folders, file records,
+              invitations and memberships for everyone — students and invited
+              teachers lose access immediately.
+            </p>
+            <DeleteClassroomButton
+              classroomId={id}
+              classroomName={classroom.name}
+            />
+          </section>
         </div>
       </main>
       <SiteFooter />

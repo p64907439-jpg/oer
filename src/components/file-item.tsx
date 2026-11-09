@@ -18,11 +18,14 @@ export function FileItem({
   file,
   subjectTitle,
   showStatus = false,
+  actions,
 }: {
   file: FileRow;
   subjectTitle: string;
   /** Render an explicit "Saved / Not downloaded" mark (Downloads tab). */
   showStatus?: boolean;
+  /** Extra controls in the action row (e.g. delete for the uploader). */
+  actions?: React.ReactNode;
 }) {
   const downloads = useDownloads();
   const saved = !!downloads[file.subject_id]?.files[file.id];
@@ -171,6 +174,7 @@ export function FileItem({
             Download
           </span>
         )}
+        {actions}
       </div>
     </div>
   );

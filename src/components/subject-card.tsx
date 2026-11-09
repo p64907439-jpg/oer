@@ -1,5 +1,6 @@
 import type { SubjectWithTeacher } from "@/lib/types";
 import { formatBytes, formatDate } from "@/lib/files";
+import { ClampedDescription } from "@/components/clamped-description";
 import Link from "next/link";
 
 export function SubjectCard({
@@ -14,11 +15,19 @@ export function SubjectCard({
   index?: number;
 }) {
   return (
-    <Link
-      href={`/subjects/${subject.id}`}
-      className="card card-hover animate-rise block p-5"
+    <div
+      className="card card-hover animate-rise relative p-5"
       style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
     >
+      {/* Whole-card link painted above the static content; the description's
+          "?" toggle escapes it with z-10 so it stays tappable. */}
+      <Link
+        href={`/subjects/${subject.id}`}
+        className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/20 focus-visible:ring-offset-2"
+      >
+        <span className="sr-only">{subject.title}</span>
+      </Link>
+
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-semibold leading-snug tracking-tight text-neutral-900">
           {subject.title}
@@ -29,9 +38,9 @@ export function SubjectCard({
       </div>
 
       {subject.description && (
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-600">
-          {subject.description}
-        </p>
+        <div className="mt-2">
+          <ClampedDescription text={subject.description} lines={2} />
+        </div>
       )}
 
       <div className="mt-4 flex items-center justify-between text-xs text-neutral-500">
@@ -56,6 +65,6 @@ export function SubjectCard({
           {formatDate(subject.created_at)}
         </span>
       </div>
-    </Link>
+    </div>
   );
 }
