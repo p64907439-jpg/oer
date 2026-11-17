@@ -11,7 +11,7 @@ export function DeleteSubjectButton({
   redirect: redirectAfter,
 }: {
   subjectId: string;
-  /** Button copy — "Delete subject" on the dashboard, "Delete folder" inside a classroom. */
+  /** Button copy — "Delete subject" on the admin, "Delete folder" on a folder page. */
   label?: string;
   /** Where to go after a successful delete (the page you're on may 404 next). */
   redirect?: string;
@@ -21,32 +21,24 @@ export function DeleteSubjectButton({
 
   async function handleDelete() {
     const ok = confirm(
-      "Delete this subject folder and all of its files? This cannot be undone."
+      "Delete this folder and all of its files? This cannot be undone."
     );
     if (!ok) return;
     setDeleting(true);
 
     const supabase = createClient();
 
-    // Storage objects live under {teacherId}/{subjectId}/ — remove them too.
-    // Group by bucket: public subjects use oer-files, classroom folders
-    // use oer-class-files. Objects uploaded by other teachers live under
-    // their uid folders (RLS denies removing those) — harmless orphans.
+    // Storage objects live under {teacherId}/{subjectId}/ — remove them
+    // too (single public bucket). Anything RLS refuses to remove is an
+    // harmless orphan row-free object.
     const { data: files } = await supabase
       .from("files")
-      .select("storage_path, bucket")
+      .select("storage_path")
       .eq("subject_id", subjectId);
 
-    const byBucket = new Map<string, string[]>();
-    for (const f of files ?? []) {
-      const list = byBucket.get(f.bucket) ?? [];
-      list.push(f.storage_path);
-      byBucket.set(f.bucket, list);
-    }
-    for (const [bucket, paths] of byBucket) {
-      if (paths.length > 0) {
-        await supabase.storage.from(bucket).remove(paths);
-      }
+    const paths = (files ?? []).map((f) => f.storage_path);
+    if (paths.length > 0) {
+      await supabase.storage.from("oer-files").remove(paths);
     }
 
     // DB rows cascade from subjects → files.

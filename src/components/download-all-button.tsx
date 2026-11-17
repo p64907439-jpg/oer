@@ -38,30 +38,13 @@ export function DownloadAllButton({
     } = await supabase.auth.getUser();
 
     let ok = 0;
-    let failed = 0;
     const recorded: { file_id: string; user_id: string }[] = [];
 
     for (const file of files) {
-      let url: string | null;
-      if (file.bucket === "oer-files") {
-        url = withDownloadParam(
-          publicObjectUrl(file.bucket, file.storage_path),
-          file.name
-        );
-      } else {
-        const { data, error } = await supabase.storage
-          .from(file.bucket)
-          .createSignedUrl(file.storage_path, 3600);
-        url =
-          !error && data?.signedUrl
-            ? withDownloadParam(data.signedUrl, file.name)
-            : null;
-      }
-
-      if (!url) {
-        failed += 1;
-        continue;
-      }
+      const url = withDownloadParam(
+        publicObjectUrl(file.storage_path),
+        file.name
+      );
 
       const a = document.createElement("a");
       a.href = url;
@@ -78,7 +61,6 @@ export function DownloadAllButton({
           kind: file.kind,
           size_bytes: file.size_bytes,
           storage_path: file.storage_path,
-          bucket: file.bucket,
         }
       );
 
@@ -99,12 +81,9 @@ export function DownloadAllButton({
     }
 
     if (ok > 0) {
-      toast.success(
-        `Downloading ${ok} ${ok === 1 ? "file" : "files"}${
-          failed > 0 ? `, ${failed} failed` : ""
-        }`,
-        { duration: 2500 }
-      );
+      toast.success(`Downloading ${ok} ${ok === 1 ? "file" : "files"}`, {
+        duration: 2500,
+      });
       // Refresh the Downloads badge/sidebar.
       router.refresh();
     } else {

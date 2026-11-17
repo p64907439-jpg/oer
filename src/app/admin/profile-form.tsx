@@ -42,7 +42,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         Your profile
       </h2>
       <p className="mt-1 text-xs text-neutral-500">
-        Students see this on your subject pages.
+        Visitors see this on your folder pages.
       </p>
 
       <div className="mt-4 flex flex-col gap-3">

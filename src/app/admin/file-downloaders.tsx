@@ -117,8 +117,8 @@ export function FileDownloaders({ fileId }: { fileId: string }) {
     };
 
     run();
-    // The owner often downloads in another tab, then returns here —
-    // refetch whenever the dashboard regains focus so counts are fresh.
+    // A teacher often downloads in another tab, then returns here —
+    // refetch whenever the admin regains focus so counts are fresh.
     window.addEventListener("focus", run);
 
     return () => {

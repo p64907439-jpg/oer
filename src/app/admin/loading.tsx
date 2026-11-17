@@ -1,7 +1,7 @@
 import { DashboardSectionSkeleton } from "@/components/skeletons";
 import { Skeleton } from "@/components/skeletons";
 
-export default function DashboardLoading() {
+export default function AdminLoading() {
   return (
     <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-6" aria-busy>
       <header className="py-8">

@@ -11,7 +11,6 @@ import {
 import { markFileDownloaded, useDownloads } from "@/lib/downloads";
 import { createClient } from "@/lib/supabase/client";
 import { CheckIcon, DownloadIcon, KindIcon } from "./icons";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function FileItem({
@@ -24,36 +23,15 @@ export function FileItem({
   subjectTitle: string;
   /** Render an explicit "Saved / Not downloaded" mark (Downloads tab). */
   showStatus?: boolean;
-  /** Extra controls in the action row (e.g. delete for the uploader). */
+  /** Extra controls in the action row (e.g. delete for teachers). */
   actions?: React.ReactNode;
 }) {
   const downloads = useDownloads();
   const saved = !!downloads[file.subject_id]?.files[file.id];
 
-  // Classroom files live in a private bucket → resolve a signed URL on
-  // mount (members only; RLS gates the signed URL). Public files are
-  // direct URLs, exactly as before.
-  const isPrivate = file.bucket !== "oer-files";
-  const [signedUrl, setSignedUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isPrivate) return;
-    let cancelled = false;
-    const supabase = createClient();
-    supabase.storage
-      .from(file.bucket)
-      .createSignedUrl(file.storage_path, 3600)
-      .then(({ data }) => {
-        if (!cancelled && data?.signedUrl) setSignedUrl(data.signedUrl);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [file.bucket, file.storage_path, isPrivate]);
-
-  const url = isPrivate ? signedUrl : publicObjectUrl(file.bucket, file.storage_path);
-  const downloadUrl = url ? withDownloadParam(url, file.name) : null;
+  // Everything lives in the public bucket — direct links, no signing.
+  const url = publicObjectUrl(file.storage_path);
+  const downloadUrl = withDownloadParam(url, file.name);
 
   function handleDownload() {
     if (!saved) {
@@ -65,12 +43,11 @@ export function FileItem({
           kind: file.kind,
           size_bytes: file.size_bytes,
           storage_path: file.storage_path,
-          bucket: file.bucket,
         }
       );
       toast.success(`“${file.name}” saved to Downloads`, { duration: 2500 });
     }
-    // Credit signed-in downloaders to the file's owner (guests stay anonymous).
+    // Credit signed-in downloaders to the teachers (guests stay anonymous).
     void recordDownload();
   }
 
@@ -102,24 +79,15 @@ export function FileItem({
       </span>
 
       <div className="min-w-0 flex-1 basis-40">
-        {url ? (
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="block truncate text-sm font-medium text-neutral-900 hover:underline"
-            title={file.name}
-          >
-            {file.name}
-          </a>
-        ) : (
-          <span
-            className="block truncate text-sm font-medium text-neutral-900"
-            title={file.name}
-          >
-            {file.name}
-          </span>
-        )}
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="block truncate text-sm font-medium text-neutral-900 hover:underline"
+          title={file.name}
+        >
+          {file.name}
+        </a>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500">
           <span>
             {KIND_LABELS[file.kind]} · {formatBytes(file.size_bytes)} ·{" "}
@@ -144,36 +112,23 @@ export function FileItem({
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1">
-        {url ? (
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost text-xs"
-          >
-            View
-          </a>
-        ) : (
-          <span className="btn btn-ghost text-xs opacity-50" aria-hidden>
-            View
-          </span>
-        )}
-        {downloadUrl ? (
-          <a
-            href={downloadUrl}
-            className="btn btn-outline text-xs"
-            download
-            onClick={handleDownload}
-          >
-            <DownloadIcon width={14} height={14} />
-            Download
-          </a>
-        ) : (
-          <span className="btn btn-outline text-xs opacity-50" aria-hidden>
-            <DownloadIcon width={14} height={14} />
-            Download
-          </span>
-        )}
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="btn btn-ghost text-xs"
+        >
+          View
+        </a>
+        <a
+          href={downloadUrl}
+          className="btn btn-outline text-xs"
+          download
+          onClick={handleDownload}
+        >
+          <DownloadIcon width={14} height={14} />
+          Download
+        </a>
         {actions}
       </div>
     </div>

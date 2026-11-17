@@ -23,9 +23,9 @@ export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
       .insert({ teacher_id: teacherId, title: trimmed, description: description.trim() || null });
 
     if (error) {
-      toast.error(`Could not create subject: ${error.message}`);
+      toast.error(`Could not create folder: ${error.message}`);
     } else {
-      toast.success(`Subject "${trimmed}" created`);
+      toast.success(`Folder "${trimmed}" created`);
       setTitle("");
       setDescription("");
       router.refresh();
@@ -37,7 +37,7 @@ export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
     <form onSubmit={handleSubmit} className="card animate-rise flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
       <div className="flex-1">
         <label htmlFor="subject-title" className="label">
-          New subject
+          New folder
         </label>
         <input
           id="subject-title"
@@ -56,7 +56,7 @@ export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
         <input
           id="subject-desc"
           className="input"
-          placeholder="What students will find here"
+          placeholder="What visitors will find here"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={300}

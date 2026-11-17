@@ -31,14 +31,9 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Signed-in-only areas: dashboard, inbox, classrooms. Guests keep
-  // public browse (home, subjects) without an account.
-  const needsAuth =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/inbox") ||
-    request.nextUrl.pathname.startsWith("/classrooms");
-
-  if (needsAuth && !user) {
+  // The admin is the only private area. Everything else — browse,
+  // subject pages, downloads — is public.
+  if (request.nextUrl.pathname.startsWith("/admin") && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);

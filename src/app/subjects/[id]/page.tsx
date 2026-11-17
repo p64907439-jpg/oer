@@ -9,12 +9,12 @@ import { ShareButton } from "@/components/share-dialog";
 import { SubjectViewers } from "@/components/subject-viewers";
 import { createClient } from "@/lib/supabase/server";
 import { formatBytes } from "@/lib/files";
-import type { ClassroomRole, FileRow } from "@/lib/types";
+import type { FileRow } from "@/lib/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { UploadButton } from "@/app/dashboard/upload-button";
-import { DeleteFileButton } from "@/app/dashboard/delete-file-button";
-import { DeleteSubjectButton } from "@/app/dashboard/delete-subject-button";
+import { UploadButton } from "@/app/admin/upload-button";
+import { DeleteFileButton } from "@/app/admin/delete-file-button";
+import { DeleteSubjectButton } from "@/app/admin/delete-subject-button";
 
 export const instant = false;
 
@@ -30,12 +30,9 @@ export default async function SubjectPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // RLS: classroom folders only resolve for members → 404 otherwise.
   const { data: subject } = await supabase
     .from("subjects")
-    .select(
-      "*, profiles:teacher_id(*), classroom:classroom_id(id, name), assigned:assigned_teacher_id(id, full_name)"
-    )
+    .select("*, profiles:teacher_id(*)")
     .eq("id", id)
     .maybeSingle();
 
@@ -62,33 +59,17 @@ export default async function SubjectPage({
     );
   }
 
-  const classroom = (subject.classroom ?? null) as {
-    id: string;
-    name: string;
-  } | null;
-
-  // Who may upload: owner anywhere; invited teacher only their assigned
-  // folders; for public subjects the owning teacher (unchanged).
-  let role: ClassroomRole | null = null;
-  if (classroom && user) {
-    const { data: membership } = await supabase
-      .from("classroom_members")
-      .select("role")
-      .eq("classroom_id", classroom.id)
-      .eq("user_id", user.id)
+  // Only the shared teacher account may upload or delete — RLS enforces
+  // this server-side too; this just hides the controls from everyone else.
+  let isTeacher = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_teacher")
+      .eq("id", user.id)
       .maybeSingle();
-    role = (membership?.role ?? null) as ClassroomRole | null;
+    isTeacher = !!profile?.is_teacher;
   }
-
-  const canUpload = !classroom
-    ? !!user && subject.teacher_id === user.id
-    : role === "owner" ||
-      (!!user && subject.assigned_teacher_id === user.id);
-
-  // Deleting a folder is owner-only inside a classroom (RLS matches).
-  const canDeleteFolder = classroom
-    ? role === "owner"
-    : !!user && subject.teacher_id === user.id;
 
   return (
     <>
@@ -99,18 +80,6 @@ export default async function SubjectPage({
           <Link href="/" className="hover:text-neutral-800">
             Browse
           </Link>
-          {classroom && (
-            <>
-              <span aria-hidden>/</span>
-              <Link
-                href={`/classrooms/${classroom.id}`}
-                className="hover:text-neutral-800"
-                prefetch={false}
-              >
-                {classroom.name}
-              </Link>
-            </>
-          )}
           <span aria-hidden>/</span>
           <span className="text-neutral-800">{subject.title}</span>
         </div>
@@ -137,23 +106,11 @@ export default async function SubjectPage({
                     {fileRows.length} {fileRows.length === 1 ? "file" : "files"}
                     {totalSize > 0 && ` · ${formatBytes(totalSize)}`}
                   </span>
-                  {classroom && (
-                    <span className="badge bg-neutral-900 text-white">
-                      {classroom.name}
-                    </span>
-                  )}
-                  {classroom && subject.assigned && (
-                    <span className="badge">
-                      {subject.profiles?.id === subject.assigned.id
-                        ? "Owner uploads"
-                        : `Uploads: ${subject.assigned.full_name}`}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
 
-            {user && <SubjectViewers subjectId={subject.id} />}
+            {isTeacher && <SubjectViewers subjectId={subject.id} />}
           </div>
 
           {subject.description && (
@@ -163,12 +120,8 @@ export default async function SubjectPage({
           )}
 
           <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-4">
-            {canUpload && (
-              <UploadButton
-                subjectId={subject.id}
-                teacherId={user!.id}
-                bucket={classroom ? "oer-class-files" : "oer-files"}
-              />
+            {isTeacher && (
+              <UploadButton subjectId={subject.id} teacherId={user!.id} />
             )}
             {fileRows.length > 0 && (
               <DownloadAllButton
@@ -180,11 +133,11 @@ export default async function SubjectPage({
               url={`/subjects/${subject.id}`}
               title={subject.title}
             />
-            {canDeleteFolder && (
+            {isTeacher && (
               <DeleteSubjectButton
                 subjectId={subject.id}
-                label={classroom ? "Delete folder" : "Delete subject"}
-                redirect={classroom ? `/classrooms/${classroom.id}` : "/dashboard"}
+                label="Delete folder"
+                redirect="/admin"
               />
             )}
           </div>
@@ -198,11 +151,10 @@ export default async function SubjectPage({
                 file={file}
                 subjectTitle={subject.title}
                 actions={
-                  user && file.teacher_id === user.id ? (
+                  isTeacher ? (
                     <DeleteFileButton
                       fileId={file.id}
                       storagePath={file.storage_path}
-                      bucket={file.bucket}
                     />
                   ) : undefined
                 }
@@ -218,9 +170,9 @@ export default async function SubjectPage({
               No files uploaded yet
             </p>
             <p className="mt-1 text-sm text-neutral-600">
-              {canUpload
+              {isTeacher
                 ? "Use the button above to upload files to this folder."
-                : "Check back soon — the owner hasn't uploaded anything yet."}
+                : "Check back soon — the teachers haven't uploaded anything yet."}
             </p>
           </div>
         )}

@@ -9,7 +9,7 @@ import { useEffect, useRef } from "react";
  * route's server-rendered data when rows change. Zero UI of its own.
  *
  * - No args: refreshes on any subject/file change (public browse pages)
- * - teacherId: only that teacher's subjects/files (dashboard)
+ * - teacherId: only that teacher's subjects/files (admin)
  * - subjectId: only one subject's files (subject page)
  */
 export function RealtimeRefresh({

@@ -125,7 +125,7 @@ export function ShareButton({
             Share “{title}”
           </h2>
           <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-            Students can scan the QR code or open the link — no account needed.
+            Anyone can scan the QR code or open the link — no account needed.
           </p>
 
           {/* QR */}

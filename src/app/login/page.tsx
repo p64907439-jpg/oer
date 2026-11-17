@@ -1,16 +1,19 @@
-import { signInWithGoogle } from "./actions";
-import { GoogleIcon } from "@/components/icons";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { LoginForm } from "./login-form";
 
 export const instant = false;
+
+export const metadata = {
+  title: "Teacher sign in",
+};
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const { error, next } = await searchParams;
+  const { next } = await searchParams;
 
   return (
     <>
@@ -22,26 +25,15 @@ export default async function LoginPage({
               O
             </span>
             <h1 className="mt-4 text-xl font-semibold tracking-tight">
-              Sign in to OER
+              Teacher sign in
             </h1>
             <p className="mt-1.5 text-sm leading-relaxed text-neutral-600">
-              One Google account gives you a profile — create folders, upload
-              materials, and your icon shows up in the folders you view.
+              One shared account for the teaching team — create folders and
+              upload materials from the admin.
             </p>
           </div>
 
-          {error && (
-            <p className="mt-5 rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-600">
-              Sign-in failed ({error}). Please try again.
-            </p>
-          )}
-
-          <form action={signInWithGoogle.bind(null, next)} className="mt-6">
-            <button type="submit" className="btn btn-primary btn-lg w-full">
-              <GoogleIcon />
-              Continue with Google
-            </button>
-          </form>
+          <LoginForm next={next} />
 
           <p className="mt-5 text-center text-xs leading-relaxed text-neutral-500">
             Just here to look around? No account needed — everything is open

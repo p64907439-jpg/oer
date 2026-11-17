@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { BottomNav } from "./bottom-nav";
 import { DownloadsLink } from "./downloads-link";
-import { InboxLink } from "./inbox-link";
 import { InstallButton } from "./install-button";
 import { SignOutButton } from "./sign-out-button";
 
@@ -11,6 +10,18 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Only the shared teacher account sees admin controls; guests and
+  // any stray signed-in account get the plain public nav.
+  let isTeacher = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_teacher")
+      .eq("id", user.id)
+      .maybeSingle();
+    isTeacher = !!profile?.is_teacher;
+  }
 
   return (
     <>
@@ -33,17 +44,16 @@ export async function SiteHeader() {
             </Link>
             <DownloadsLink />
             <InstallButton />
-            {user ? (
+            {isTeacher ? (
               <>
-                <InboxLink userId={user.id} />
-                <Link href="/dashboard" className="btn btn-outline">
-                  Dashboard
+                <Link href="/admin" className="btn btn-outline">
+                  Admin
                 </Link>
                 <SignOutButton />
               </>
             ) : (
               <Link href="/login" className="btn btn-primary">
-                Sign in
+                Teacher sign in
               </Link>
             )}
           </nav>
@@ -51,11 +61,11 @@ export async function SiteHeader() {
           {/* Phone: destinations move to the bottom tab bar (BottomNav);
               the header keeps only auth control. */}
           <div className="flex items-center gap-1 sm:hidden">
-            {user && <SignOutButton />}
+            {isTeacher && <SignOutButton />}
           </div>
         </div>
       </header>
-      <BottomNav userId={user?.id ?? null} />
+      <BottomNav isTeacher={isTeacher} />
     </>
   );
 }

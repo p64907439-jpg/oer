@@ -14,71 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      classroom_members: {
-        Row: {
-          classroom_id: string
-          created_at: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          classroom_id: string
-          created_at?: string
-          role: string
-          user_id: string
-        }
-        Update: {
-          classroom_id?: string
-          created_at?: string
-          role?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "classroom_members_classroom_id_fkey"
-            columns: ["classroom_id"]
-            isOneToOne: false
-            referencedRelation: "classrooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "classroom_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      classrooms: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          owner_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          owner_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          owner_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "classrooms_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       file_downloads: {
         Row: {
           downloaded_at: string
@@ -107,7 +42,6 @@ export type Database = {
       }
       files: {
         Row: {
-          bucket: string
           created_at: string
           id: string
           kind: string
@@ -119,7 +53,6 @@ export type Database = {
           teacher_id: string
         }
         Insert: {
-          bucket?: string
           created_at?: string
           id?: string
           kind?: string
@@ -131,7 +64,6 @@ export type Database = {
           teacher_id: string
         }
         Update: {
-          bucket?: string
           created_at?: string
           id?: string
           kind?: string
@@ -159,61 +91,6 @@ export type Database = {
           },
         ]
       }
-      invitations: {
-        Row: {
-          classroom_id: string
-          created_at: string
-          id: string
-          invitee_id: string
-          inviter_id: string
-          responded_at: string | null
-          role: string
-          status: string
-        }
-        Insert: {
-          classroom_id: string
-          created_at?: string
-          id?: string
-          invitee_id: string
-          inviter_id: string
-          responded_at?: string | null
-          role: string
-          status?: string
-        }
-        Update: {
-          classroom_id?: string
-          created_at?: string
-          id?: string
-          invitee_id?: string
-          inviter_id?: string
-          responded_at?: string | null
-          role?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invitations_classroom_id_fkey"
-            columns: ["classroom_id"]
-            isOneToOne: false
-            referencedRelation: "classrooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_invitee_id_fkey"
-            columns: ["invitee_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_inviter_id_fkey"
-            columns: ["inviter_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -222,14 +99,16 @@ export type Database = {
           full_name: string
           headline: string | null
           id: string
+          is_teacher: boolean
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          full_name: string
+          full_name?: string
           headline?: string | null
           id: string
+          is_teacher?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -238,6 +117,7 @@ export type Database = {
           full_name?: string
           headline?: string | null
           id?: string
+          is_teacher?: boolean
         }
         Relationships: []
       }
@@ -269,8 +149,6 @@ export type Database = {
       }
       subjects: {
         Row: {
-          assigned_teacher_id: string | null
-          classroom_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -278,8 +156,6 @@ export type Database = {
           title: string
         }
         Insert: {
-          assigned_teacher_id?: string | null
-          classroom_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -287,8 +163,6 @@ export type Database = {
           title: string
         }
         Update: {
-          assigned_teacher_id?: string | null
-          classroom_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -296,20 +170,6 @@ export type Database = {
           title?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "subjects_assigned_teacher_id_fkey"
-            columns: ["assigned_teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subjects_classroom_id_fkey"
-            columns: ["classroom_id"]
-            isOneToOne: false
-            referencedRelation: "classrooms"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "subjects_teacher_id_fkey"
             columns: ["teacher_id"]
@@ -324,20 +184,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      class_role: {
-        Args: { p_classroom_id: string; p_user_id: string }
-        Returns: string
-      }
-      find_user_by_email: {
-        Args: { p_query: string }
-        Returns: {
-          avatar_url: string
-          email: string
-          full_name: string
-          id: string
-        }[]
-      }
-      my_class_role: { Args: { p_classroom_id: string }; Returns: string }
+      is_teacher: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
