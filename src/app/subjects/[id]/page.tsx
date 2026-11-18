@@ -76,15 +76,30 @@ export default async function SubjectPage({
       <RealtimeRefresh subjectId={subject.id} />
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
-        <div className="mb-4 flex flex-wrap items-center gap-1 text-sm text-neutral-500">
-          <Link href="/" className="hover:text-neutral-800">
-            Browse
+        {/* Back link */}
+        <div className="mb-5">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            Back to Browse
           </Link>
-          <span aria-hidden>/</span>
-          <span className="text-neutral-800">{subject.title}</span>
         </div>
 
-        <header className="card mb-4 p-6">
+        <header className="card mb-5 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-500">
@@ -138,6 +153,7 @@ export default async function SubjectPage({
                 subjectId={subject.id}
                 label="Delete folder"
                 redirect="/admin"
+                folderName={subject.title}
               />
             )}
           </div>
@@ -155,6 +171,7 @@ export default async function SubjectPage({
                     <DeleteFileButton
                       fileId={file.id}
                       storagePath={file.storage_path}
+                      fileName={file.name}
                     />
                   ) : undefined
                 }
@@ -169,7 +186,7 @@ export default async function SubjectPage({
             <p className="mt-4 font-medium text-neutral-900">
               No files uploaded yet
             </p>
-            <p className="mt-1 text-sm text-neutral-600">
+            <p className="mt-1 text-sm text-neutral-500">
               {isTeacher
                 ? "Use the button above to upload files to this folder."
                 : "Check back soon — the teachers haven't uploaded anything yet."}

@@ -85,7 +85,7 @@ export default async function AdminPage() {
             <h1 className="text-2xl font-semibold tracking-tight">
               {profile.full_name ? `Hi, ${profile.full_name.split(" ")[0]}` : "Admin"}
             </h1>
-            <p className="mt-1 text-sm text-neutral-600">
+            <p className="mt-1 text-sm text-neutral-500">
               {subjectRows.length} folder{subjectRows.length === 1 ? "" : "s"} ·{" "}
               {totalFiles} file{totalFiles === 1 ? "" : "s"}
               {totalSize > 0 ? ` · ${formatBytes(totalSize)} total` : ""}
@@ -121,7 +121,7 @@ export default async function AdminPage() {
                 <p className="font-medium text-neutral-900">
                   Create your first folder
                 </p>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-sm text-neutral-500">
                   Folders are what visitors browse — like
                   &ldquo;Algebra II&rdquo; or &ldquo;World History&rdquo;.
                 </p>
@@ -166,7 +166,10 @@ export default async function AdminPage() {
                         >
                           View page
                         </Link>
-                        <DeleteSubjectButton subjectId={subject.id} />
+                        <DeleteSubjectButton
+                          subjectId={subject.id}
+                          folderName={subject.title}
+                        />
                       </div>
                     </div>
 
@@ -182,22 +185,22 @@ export default async function AdminPage() {
                       </div>
 
                       {subjectFiles.length > 0 ? (
-                        <ul className="mt-3 flex flex-col divide-y divide-neutral-100">
+                        <ul className="mt-3 flex flex-col gap-2">
                           {subjectFiles.map((file) => (
                             <li
                               key={file.id}
-                              className="flex flex-wrap items-center gap-3 py-2"
+                              className="flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200/70 bg-neutral-50 px-3 py-2.5"
                             >
-                              <span className="text-neutral-400">
-                                <KindIcon kind={file.kind as never} width={16} height={16} />
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white text-neutral-500 shadow-sm ring-1 ring-neutral-200/80">
+                                <KindIcon kind={file.kind as never} width={14} height={14} />
                               </span>
                               <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm text-neutral-800">
+                                <span className="block truncate text-sm font-medium text-neutral-900">
                                   {file.name}
                                 </span>
-                                <span className="block text-xs text-neutral-500">
-                                  {KIND_LABELS[file.kind as keyof typeof KIND_LABELS] ?? "File"} ·{" "}
-                                  {formatBytes(file.size_bytes)} ·{" "}
+                                <span className="block text-xs text-neutral-400">
+                                  {KIND_LABELS[file.kind as keyof typeof KIND_LABELS] ?? "File"} &middot;{" "}
+                                  {formatBytes(file.size_bytes)} &middot;{" "}
                                   {formatDate(file.created_at)}
                                 </span>
                               </span>
@@ -205,6 +208,7 @@ export default async function AdminPage() {
                               <DeleteFileButton
                                 fileId={file.id}
                                 storagePath={file.storage_path}
+                                fileName={file.name}
                               />
                             </li>
                           ))}

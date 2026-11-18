@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PlusIcon } from "@/components/icons";
 
 export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
   const [title, setTitle] = useState("");
@@ -34,10 +35,13 @@ export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card animate-rise flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+    <form
+      onSubmit={handleSubmit}
+      className="card animate-rise flex flex-col gap-3 p-5 sm:flex-row sm:items-end sm:gap-4"
+    >
       <div className="flex-1">
         <label htmlFor="subject-title" className="label">
-          New folder
+          Folder name
         </label>
         <input
           id="subject-title"
@@ -51,19 +55,25 @@ export function CreateSubjectForm({ teacherId }: { teacherId: string }) {
       </div>
       <div className="flex-[2]">
         <label htmlFor="subject-desc" className="label">
-          Description <span className="text-neutral-400">(optional)</span>
+          Description{" "}
+          <span className="font-normal text-neutral-400">(optional)</span>
         </label>
         <input
           id="subject-desc"
           className="input"
-          placeholder="What visitors will find here"
+          placeholder="What students will find here"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={300}
         />
       </div>
-      <button type="submit" className="btn btn-primary h-[42px] shrink-0" disabled={creating || !title.trim()}>
-        {creating ? "Creating…" : "Create"}
+      <button
+        type="submit"
+        className="btn btn-primary shrink-0"
+        disabled={creating || !title.trim()}
+      >
+        <PlusIcon width={15} height={15} />
+        {creating ? "Creating…" : "Create folder"}
       </button>
     </form>
   );

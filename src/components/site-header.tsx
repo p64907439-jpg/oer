@@ -11,8 +11,6 @@ export async function SiteHeader() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Only the shared teacher account sees admin controls; guests and
-  // any stray signed-in account get the plain public nav.
   let isTeacher = false;
   if (user) {
     const { data: profile } = await supabase
@@ -25,41 +23,40 @@ export async function SiteHeader() {
 
   return (
     <>
-      <header className="safe-top sticky top-0 z-40 border-b border-neutral-200/70 bg-neutral-50/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-2 px-4 sm:px-6">
+      <header className="safe-top sticky top-0 z-40 border-b border-neutral-200/60 bg-white/80 backdrop-blur-xl backdrop-saturate-150">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-tight"
+            className="flex shrink-0 items-center gap-2.5 text-[15px] font-semibold tracking-tight text-neutral-900 transition-opacity duration-150 hover:opacity-70"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-neutral-900 text-[11px] font-bold text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-[12px] font-bold text-white shadow-sm">
               O
             </span>
             <span className="max-sm:hidden">OER</span>
           </Link>
 
-          {/* Desktop: destinations live in the top bar. */}
+          {/* Desktop nav */}
           <nav className="hidden items-center gap-1 sm:flex">
-            <Link href="/" className="btn btn-ghost">
+            <Link href="/" className="btn btn-ghost text-sm">
               Browse
             </Link>
             <DownloadsLink />
             <InstallButton />
             {isTeacher ? (
               <>
-                <Link href="/admin" className="btn btn-outline">
+                <Link href="/admin" className="btn btn-outline text-sm">
                   Admin
                 </Link>
                 <SignOutButton />
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary">
-                Teacher sign in
+              <Link href="/login" className="btn btn-primary text-sm">
+                Teacher login
               </Link>
             )}
           </nav>
 
-          {/* Phone: destinations move to the bottom tab bar (BottomNav);
-              the header keeps only auth control. */}
+          {/* Mobile: only auth control */}
           <div className="flex items-center gap-1 sm:hidden">
             {isTeacher && <SignOutButton />}
           </div>

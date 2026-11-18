@@ -234,6 +234,42 @@ export function HelpIcon(props: Props) {
   );
 }
 
+export function TrashIcon(props: Props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>
+  );
+}
+
+export function SearchIcon(props: Props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+export function HomeIcon(props: Props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+export function SpinnerIcon(props: Props) {
+  return (
+    <svg {...base} {...props} className={`animate-spin ${(props as any).className ?? ''}`}>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
 const KIND_MAP = {
   video: VideoIcon,
   pdf: PdfIcon,

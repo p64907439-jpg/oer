@@ -45,7 +45,7 @@ export function FileItem({
           storage_path: file.storage_path,
         }
       );
-      toast.success(`“${file.name}” saved to Downloads`, { duration: 2500 });
+      toast.success(`"${file.name}" saved to Downloads`, { duration: 2500 });
     }
     // Credit signed-in downloaders to the teachers (guests stay anonymous).
     void recordDownload();
@@ -73,12 +73,14 @@ export function FileItem({
   }
 
   return (
-    <div className="animate-rise flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200/80 bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
-        <KindIcon kind={file.kind} />
+    <div className="animate-slide-up group flex items-center gap-3 rounded-xl border border-neutral-200/80 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow duration-200 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.06)]">
+      {/* Icon */}
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition-colors duration-150 group-hover:bg-neutral-200/70">
+        <KindIcon kind={file.kind} width={16} height={16} />
       </span>
 
-      <div className="min-w-0 flex-1 basis-40">
+      {/* Info */}
+      <div className="min-w-0 flex-1">
         <a
           href={url}
           target="_blank"
@@ -88,30 +90,32 @@ export function FileItem({
         >
           {file.name}
         </a>
-        <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500">
-          <span>
-            {KIND_LABELS[file.kind]} · {formatBytes(file.size_bytes)} ·{" "}
-            {formatDate(file.created_at)}
-          </span>
+        <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-neutral-400">
+          <span>{KIND_LABELS[file.kind as keyof typeof KIND_LABELS]}</span>
+          <span aria-hidden>·</span>
+          <span>{formatBytes(file.size_bytes)}</span>
+          <span aria-hidden>·</span>
+          <span>{formatDate(file.created_at)}</span>
           {saved && (
-            <span className="badge !bg-green-50 !text-green-700">
-              <CheckIcon width={12} height={12} strokeWidth={2.5} />
-              Saved
-            </span>
+            <>
+              <span aria-hidden>·</span>
+              <span className="inline-flex items-center gap-1 text-green-600">
+                <CheckIcon width={11} height={11} strokeWidth={2.5} />
+                Saved
+              </span>
+            </>
           )}
           {!saved && showStatus && (
-            <span className="badge">
-              <span
-                aria-hidden
-                className="inline-block h-2 w-2 rounded-full border-[1.5px] border-neutral-400"
-              />
-              Not downloaded
-            </span>
+            <>
+              <span aria-hidden>·</span>
+              <span className="text-neutral-300">Not downloaded</span>
+            </>
           )}
         </p>
       </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-1">
+      {/* Actions */}
+      <div className="ml-auto flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 sm:opacity-100">
         <a
           href={url}
           target="_blank"
@@ -126,8 +130,8 @@ export function FileItem({
           download
           onClick={handleDownload}
         >
-          <DownloadIcon width={14} height={14} />
-          Download
+          <DownloadIcon width={13} height={13} />
+          Save
         </a>
         {actions}
       </div>

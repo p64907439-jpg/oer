@@ -10,7 +10,7 @@ export function LoginForm({ next }: { next?: string }) {
   );
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-3">
+    <form action={formAction} className="mt-6 flex flex-col gap-4">
       {next && <input type="hidden" name="next" value={next} />}
 
       <div>
@@ -23,7 +23,7 @@ export function LoginForm({ next }: { next?: string }) {
           type="email"
           autoComplete="username"
           className="input"
-          placeholder="teachers@oer.app"
+          placeholder="teachers@school.edu"
           required
         />
       </div>
@@ -46,7 +46,7 @@ export function LoginForm({ next }: { next?: string }) {
       {state.error && (
         <p
           role="alert"
-          className="rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-600"
+          className="animate-slide-up rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-600"
         >
           {state.error}
         </p>
@@ -54,7 +54,7 @@ export function LoginForm({ next }: { next?: string }) {
 
       <button
         type="submit"
-        className="btn btn-primary btn-lg w-full"
+        className="btn btn-primary btn-lg mt-1 w-full"
         disabled={pending}
       >
         {pending ? "Signing in…" : "Sign in"}

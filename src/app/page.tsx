@@ -1,7 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SubjectCard } from "@/components/subject-card";
-import { FolderIcon } from "@/components/icons";
+import { FolderIcon, SearchIcon } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import type { SubjectWithTeacher } from "@/lib/types";
@@ -56,37 +56,42 @@ export default async function HomePage({
 
       <main className="mx-auto max-w-5xl px-4 sm:px-6">
         {/* Hero */}
-        <section className="py-16 text-center sm:py-20">
-          <h1 className="animate-rise mx-auto max-w-2xl text-4xl font-semibold leading-[1.1] tracking-tight text-neutral-900 sm:text-5xl">
-            Open Education Resources
+        <section className="py-16 text-center sm:py-24">
+          <h1 className="animate-rise mx-auto max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight text-neutral-900 sm:text-5xl">
+            Open Education
+            <br />
+            Resources
           </h1>
           <p
-            className="animate-rise mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-600 sm:text-lg"
+            className="animate-rise mx-auto mt-4 max-w-sm text-base leading-relaxed text-neutral-500"
             style={{ animationDelay: "60ms" }}
           >
-            Browse subjects from real teachers. View and download every
-            material —{" "}
-            <span className="font-medium text-neutral-900">
-              no account needed
+            Browse subjects from your teachers.{" "}
+            <span className="font-medium text-neutral-800">
+              No account needed.
             </span>
-            .
           </p>
 
           <form
             action="/"
             method="GET"
-            className="animate-rise mx-auto mt-8 flex max-w-md gap-2"
+            className="animate-rise mx-auto mt-8 flex max-w-sm items-center gap-2"
             style={{ animationDelay: "120ms" }}
           >
-            <input
-              type="search"
-              name="q"
-              defaultValue={query}
-              placeholder="Search subjects or teachers…"
-              className="input"
-              aria-label="Search subjects"
-              enterKeyHint="search"
-            />
+            <div className="relative flex-1">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <SearchIcon width={16} height={16} />
+              </span>
+              <input
+                type="search"
+                name="q"
+                defaultValue={query}
+                placeholder="Search subjects…"
+                className="input pl-9"
+                aria-label="Search subjects"
+                enterKeyHint="search"
+              />
+            </div>
             <button type="submit" className="btn btn-primary shrink-0">
               Search
             </button>
@@ -94,15 +99,15 @@ export default async function HomePage({
         </section>
 
         {/* Subject grid */}
-        <section className="pb-20">
+        <section className="pb-24">
           {filtered.length > 0 ? (
             <>
-              <h2 className="mb-4 text-sm font-medium text-neutral-500">
+              <p className="mb-5 text-sm text-neutral-400">
                 {query
-                  ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for “${query}”`
+                  ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for "${query}"`
                   : `${filtered.length} subject${filtered.length === 1 ? "" : "s"} available`}
-              </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((subject, i) => {
                   const stat = stats.get(subject.id) ?? { count: 0, size: 0 };
                   return (
@@ -118,15 +123,15 @@ export default async function HomePage({
               </div>
             </>
           ) : (
-            <div className="card flex flex-col items-center gap-3 p-12 text-center">
+            <div className="card animate-rise flex flex-col items-center gap-3 p-16 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
                 <FolderIcon />
               </span>
               <div>
                 <p className="font-medium text-neutral-900">Nothing here yet</p>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-sm text-neutral-500">
                   {query
-                    ? "No subjects match your search. Try a different term."
+                    ? "No subjects match your search."
                     : "No subjects have been published yet. Check back soon."}
                 </p>
               </div>

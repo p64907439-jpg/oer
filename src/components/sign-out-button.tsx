@@ -2,25 +2,19 @@
 
 import { signOut } from "@/app/login/actions";
 import { LogOutIcon } from "@/components/icons";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useTransition } from "react";
 
 export function SignOutButton() {
-  const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
   return (
     <button
-      className="btn btn-ghost max-sm:px-2.5"
-      title="Sign out"
-      onClick={async () => {
-        await signOut();
-        toast.success("Signed out");
-        router.push("/");
-        router.refresh();
-      }}
+      className="btn btn-ghost text-sm text-neutral-500 hover:text-neutral-900"
+      disabled={pending}
+      onClick={() => startTransition(() => signOut())}
     >
-      <LogOutIcon width={14} height={14} className="sm:hidden" />
-      <span className="max-sm:hidden">Sign out</span>
+      <LogOutIcon width={15} height={15} />
+      <span className="max-sm:hidden">{pending ? "Signing out…" : "Sign out"}</span>
     </button>
   );
 }

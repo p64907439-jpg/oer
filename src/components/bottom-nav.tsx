@@ -2,7 +2,7 @@
 
 import {
   DownloadIcon,
-  FolderIcon,
+  HomeIcon,
   GridIcon,
   UserIcon,
 } from "@/components/icons";
@@ -25,14 +25,21 @@ function Tab({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex flex-1 flex-col items-center gap-1 px-1 pt-1.5 pb-1 text-[11px] font-medium ${
-        active ? "text-neutral-900" : "text-neutral-500"
+      className={`flex flex-1 flex-col items-center gap-0.5 px-1 pt-2 pb-1.5 text-[10px] font-medium tracking-wide transition-colors duration-150 ${
+        active ? "text-neutral-900" : "text-neutral-400"
       }`}
     >
       <span
-        className={`flex h-7 w-11 items-center justify-center rounded-full transition-colors duration-150 ${
-          active ? "bg-neutral-900 text-white" : ""
+        className={`flex h-7 w-11 items-center justify-center rounded-xl transition-all duration-150 ${
+          active ? "bg-neutral-100 text-neutral-900" : ""
         }`}
+        style={
+          active
+            ? {
+                transform: "scale(1)",
+              }
+            : {}
+        }
       >
         {icon}
       </span>
@@ -59,34 +66,34 @@ export function BottomNav({ isTeacher }: { isTeacher: boolean }) {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200/70 bg-neutral-50/95 backdrop-blur-md sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200/70 bg-white/95 backdrop-blur-xl backdrop-saturate-150 sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="flex items-stretch px-1 shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
+      <div className="flex items-stretch px-2">
         <Tab
           href="/"
           label="Browse"
-          icon={<FolderIcon width={17} height={17} />}
+          icon={<HomeIcon width={18} height={18} />}
           active={onBrowse}
         />
         <Tab
           href="/downloads"
           label="Downloads"
-          icon={<DownloadIcon width={17} height={17} />}
+          icon={<DownloadIcon width={18} height={18} />}
           active={pathname.startsWith("/downloads")}
         />
         {isTeacher ? (
           <Tab
             href="/admin"
             label="Admin"
-            icon={<GridIcon width={17} height={17} />}
+            icon={<GridIcon width={18} height={18} />}
             active={pathname.startsWith("/admin")}
           />
         ) : (
           <Tab
             href="/login"
             label="Sign in"
-            icon={<UserIcon width={17} height={17} />}
+            icon={<UserIcon width={18} height={18} />}
             active={pathname.startsWith("/login")}
           />
         )}
