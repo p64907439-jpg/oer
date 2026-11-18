@@ -8,6 +8,7 @@ import { KIND_LABELS, formatBytes, formatDate } from "@/lib/files";
 import type { FileRow, Profile, Subject } from "@/lib/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { LoginForm } from "@/app/admin/login-form";
 import { CreateSubjectForm } from "./create-subject-form";
 import { DeleteFileButton } from "./delete-file-button";
 import { DeleteSubjectButton } from "./delete-subject-button";
@@ -18,13 +19,48 @@ import { ShareButton } from "@/components/share-dialog";
 
 export const instant = false;
 
+export const metadata = {
+  title: "Admin",
+};
+
 export default async function AdminPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login?next=/admin");
+  // Not signed in — show the login gate directly on /admin
+  if (!user) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="mx-auto flex max-w-5xl flex-col items-center px-4 py-20 sm:px-6">
+          <div className="card w-full max-w-sm animate-rise p-8">
+            <div className="text-center">
+              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-900 text-sm font-bold text-white shadow-sm">
+                O
+              </span>
+              <h1 className="mt-4 text-xl font-semibold tracking-tight">
+                Teacher admin
+              </h1>
+              <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">
+                Sign in with your teacher credentials.
+              </p>
+            </div>
+            <LoginForm />
+            <p className="mt-5 text-center text-xs leading-relaxed text-neutral-400">
+              Just browsing? No account needed —{" "}
+              <Link href="/" className="underline underline-offset-2 hover:text-neutral-700">
+                browse as a guest
+              </Link>
+              .
+            </p>
+          </div>
+        </main>
+        <SiteFooter />
+      </>
+    );
+  }
 
   const { data: profileRow } = await supabase
     .from("profiles")

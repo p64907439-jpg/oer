@@ -1,0 +1,8 @@
+feat: move teacher login to /admin, manual DB credentials
+
+- /admin shows login form when unauthenticated, dashboard when logged in
+- /login now redirects to /admin (kept for backward compat)
+- Header and BottomNav Teacher login link points to /admin
+- signOut redirects back to /admin login gate
+- No public sign-up UI — teachers added manually via DB
+- Add src/app/admin/login-form.tsx (self-contained form for the gate)

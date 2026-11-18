@@ -91,10 +91,10 @@ export function BottomNav({ isTeacher }: { isTeacher: boolean }) {
           />
         ) : (
           <Tab
-            href="/login"
+            href="/admin"
             label="Sign in"
             icon={<UserIcon width={18} height={18} />}
-            active={pathname.startsWith("/login")}
+            active={pathname.startsWith("/admin")}
           />
         )}
       </div>

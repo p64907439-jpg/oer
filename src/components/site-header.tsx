@@ -50,7 +50,7 @@ export async function SiteHeader() {
                 <SignOutButton />
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary text-sm">
+              <Link href="/admin" className="btn btn-primary text-sm">
                 Teacher login
               </Link>
             )}
