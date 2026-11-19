@@ -5,7 +5,7 @@ import { KindIcon, LiveDot } from "@/components/icons";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { createClient } from "@/lib/supabase/server";
 import { KIND_LABELS, formatBytes, formatDate } from "@/lib/files";
-import type { FileRow, Profile, Subject } from "@/lib/types";
+import type { FileRow, Profile, SubjectWithTeacher } from "@/lib/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateSubjectForm } from "./create-subject-form";
@@ -49,10 +49,11 @@ export default async function AdminPage() {
       is_teacher: true,
     } satisfies Profile);
 
-  // The whole library — one shared account manages every folder.
+  // The whole library — every teacher manages every folder; the owner
+  // label shows who created each one.
   const { data: subjects } = await supabase
     .from("subjects")
-    .select("*")
+    .select("*, profiles:teacher_id(id, full_name, avatar_url)")
     .order("created_at", { ascending: false });
 
   const { data: fileRowsRaw } = await supabase
@@ -60,7 +61,7 @@ export default async function AdminPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const subjectRows = (subjects ?? []) as Subject[];
+  const subjectRows = (subjects ?? []) as unknown as SubjectWithTeacher[];
   const fileRows = (fileRowsRaw ?? []) as FileRow[];
 
   // Group files by subject.
@@ -144,6 +145,11 @@ export default async function AdminPage() {
                           <span className="badge">
                             {subjectFiles.length}{" "}
                             {subjectFiles.length === 1 ? "file" : "files"}
+                          </span>
+                          <span className="min-w-0 truncate text-xs font-normal text-neutral-500">
+                            {subject.profiles?.id === user.id
+                              ? "Your folder"
+                              : `by ${subject.profiles?.full_name ?? "Unknown teacher"}`}
                           </span>
                         </div>
                         {subject.description && (
