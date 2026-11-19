@@ -96,7 +96,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
-          full_name: string
+          full_name: string | null
           headline: string | null
           id: string
           is_teacher: boolean
@@ -105,7 +105,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          full_name?: string
+          full_name?: string | null
           headline?: string | null
           id: string
           is_teacher?: boolean
@@ -114,7 +114,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          full_name?: string
+          full_name?: string | null
           headline?: string | null
           id?: string
           is_teacher?: boolean
@@ -220,8 +220,7 @@ export type Tables<
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
         DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
