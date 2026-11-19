@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  DownloadIcon,
-  FolderIcon,
-  GridIcon,
-  UserIcon,
-} from "@/components/icons";
+import { DownloadIcon, FolderIcon, GridIcon } from "@/components/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -45,8 +40,8 @@ function Tab({
  * Phone-only bottom tab bar — the app-like navigation surface on phones.
  * Desktop keeps the top header nav; this is hidden at ≥sm.
  *
- * Teachers get Browse / Downloads / Admin; everyone else gets
- * Browse / Downloads / Sign in.
+ * Teachers get Browse / Downloads / Admin; guests get Browse /
+ * Downloads only — sign-in is reached by visiting /admin.
  */
 export function BottomNav({ isTeacher }: { isTeacher: boolean }) {
   const pathname = usePathname();
@@ -75,19 +70,13 @@ export function BottomNav({ isTeacher }: { isTeacher: boolean }) {
           icon={<DownloadIcon width={17} height={17} />}
           active={pathname.startsWith("/downloads")}
         />
-        {isTeacher ? (
+        {/* No sign-in tab for guests — teachers sign in via /admin. */}
+        {isTeacher && (
           <Tab
             href="/admin"
             label="Admin"
             icon={<GridIcon width={17} height={17} />}
             active={pathname.startsWith("/admin")}
-          />
-        ) : (
-          <Tab
-            href="/login"
-            label="Sign in"
-            icon={<UserIcon width={17} height={17} />}
-            active={pathname.startsWith("/login")}
           />
         )}
       </div>

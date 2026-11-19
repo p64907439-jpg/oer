@@ -44,17 +44,15 @@ export async function SiteHeader() {
             </Link>
             <DownloadsLink />
             <InstallButton />
-            {isTeacher ? (
+            {/* No sign-in button in the public nav — teachers reach the
+                login through /admin, which gates to the sign-in form. */}
+            {isTeacher && (
               <>
                 <Link href="/admin" className="btn btn-outline">
                   Admin
                 </Link>
                 <SignOutButton />
               </>
-            ) : (
-              <Link href="/login" className="btn btn-primary">
-                Teacher sign in
-              </Link>
             )}
           </nav>
 
